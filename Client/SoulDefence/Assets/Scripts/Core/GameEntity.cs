@@ -41,10 +41,7 @@ public class GameEntity : MonoBehaviour
     /// </summary>
     private void UpdateEntity()
     {
-        // 处理移动输入
-        movement.HandleMovementInput();
-        
-        // 执行移动
+        // 执行移动（移动方向由外部设置）
         movement.Move();
     }
 
@@ -79,6 +76,23 @@ public class GameEntity : MonoBehaviour
     }
 
     /// <summary>
+    /// 设置移动方向（快捷方法）
+    /// </summary>
+    /// <param name="direction">移动方向</param>
+    public void SetMoveDirection(Vector3 direction)
+    {
+        movement.SetMoveDirection(direction);
+    }
+
+    /// <summary>
+    /// 停止移动（快捷方法）
+    /// </summary>
+    public void StopMovement()
+    {
+        movement.StopMovement();
+    }
+
+    /// <summary>
     /// 造成伤害（快捷方法）
     /// </summary>
     /// <param name="damage">伤害值</param>
@@ -109,4 +123,4 @@ public class GameEntity : MonoBehaviour
     public bool IsMoving => movement.IsMoving;
 
     #endregion
-}
+} 

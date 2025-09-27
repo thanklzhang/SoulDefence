@@ -31,27 +31,7 @@ public class EntityMovement
         attributes = entityAttributes;
     }
 
-    /// <summary>
-    /// 处理移动输入（WASD按键控制）
-    /// </summary>
-    public void HandleMovementInput()
-    {
-        float horizontal = 0f;
-        float vertical = 0f;
 
-        // WASD按键输入
-        if (Input.GetKey(KeyCode.W))
-            vertical += 1f;
-        if (Input.GetKey(KeyCode.S))
-            vertical -= 1f;
-        if (Input.GetKey(KeyCode.A))
-            horizontal -= 1f;
-        if (Input.GetKey(KeyCode.D))
-            horizontal += 1f;
-
-        // 计算移动方向
-        moveDirection = new Vector3(horizontal, 0, vertical).normalized;
-    }
 
     /// <summary>
     /// 执行移动和转向

@@ -74,7 +74,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8983437969570439146}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0c8cf17b9fef4994e8a4b9a50d7f870e, type: 3}
+  m_Script: {fileID: 11500000, guid: 005163f272916f043894f81c77c8728e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   mapBoundary: {fileID: 6223270052149658697}
@@ -179,7 +179,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &8983437970913149865
 Transform:
   m_ObjectHideFlags: 0
