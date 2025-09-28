@@ -32,6 +32,7 @@ namespace SoulDefence.Entity
         {
             transform = entityTransform;
             attributes = entityAttributes;
+            Debug.Log($"EntityMovement初始化: transform={transform!=null}, attributes={attributes!=null}");
         }
 
 
@@ -41,25 +42,43 @@ namespace SoulDefence.Entity
         /// </summary>
         public void Move()
         {
-            if (transform == null || attributes == null)
+            if (transform == null)
+            {
+                Debug.LogError("EntityMovement: Transform为空，无法移动");
                 return;
+            }
+            
+            if (attributes == null)
+            {
+                Debug.LogError("EntityMovement: Attributes为空，无法获取移动速度");
+                return;
+            }
 
             // 如果有移动方向，执行移动和转向
             if (moveDirection.magnitude > 0.1f)
             {
                 // 计算移动向量
-                Vector3 movement = moveDirection * attributes.MoveSpeed * Time.deltaTime;
+                float moveSpeed = attributes.MoveSpeed;
+                Vector3 movement = moveDirection * moveSpeed * Time.deltaTime;
                 Vector3 newPosition = transform.position + movement;
+                
+                //Debug.Log($"EntityMovement: 移动方向={moveDirection}, 速度={moveSpeed}, 移动量={movement}");
 
                 // 检查地图边界限制
                 if (MapBoundary.Instance != null)
                 {
                     // 如果新位置超出边界，将其限制在边界内
-                    newPosition = MapBoundary.Instance.ClampPositionToBounds(newPosition);
+                    Vector3 boundedPosition = MapBoundary.Instance.ClampPositionToBounds(newPosition);
+                    if (boundedPosition != newPosition)
+                    {
+                        // Debug.Log($"EntityMovement: 位置被边界限制，原位置={newPosition}, 新位置={boundedPosition}");
+                        newPosition = boundedPosition;
+                    }
                 }
 
                 // 应用移动
                 transform.position = newPosition;
+                // Debug.Log($"EntityMovement: 实体已移动到 {newPosition}");
 
                 // 只有在移动时才执行转向
                 HandleRotation();
@@ -67,7 +86,11 @@ namespace SoulDefence.Entity
                 // 记录最后的移动方向
                 lastMoveDirection = moveDirection;
             }
-            // 如果没有移动输入，停止转向（保持当前朝向）
+            else
+            {
+                // 如果没有移动方向，记录日志
+                // Debug.Log("EntityMovement: 没有移动方向，保持静止");
+            }
         }
 
         /// <summary>
@@ -88,6 +111,8 @@ namespace SoulDefence.Entity
                 targetRotation, 
                 rotationSpeed * Time.deltaTime
             );
+            
+            Debug.Log($"EntityMovement: 实体已转向，面向方向={moveDirection}");
         }
 
         /// <summary>
@@ -96,7 +121,39 @@ namespace SoulDefence.Entity
         /// <param name="direction">移动方向</param>
         public void SetMoveDirection(Vector3 direction)
         {
-            moveDirection = direction.normalized;
+            // 检查方向是否有效
+            if (direction == null)
+            {
+                Debug.LogError("EntityMovement: 设置的移动方向为null");
+                return;
+            }
+            
+            // 忽略Y轴方向，保持在水平面移动
+            Vector3 horizontalDirection = new Vector3(direction.x, 0, direction.z);
+            
+            // 如果方向向量太小，可能是无效的
+            if (horizontalDirection.magnitude < 0.01f)
+            {
+                // Debug.LogWarning("EntityMovement: 设置的移动方向太小，可能是无效的");
+                // 如果需要停止移动，应该调用StopMovement方法
+                if (direction.magnitude < 0.01f)
+                {
+                    StopMovement();
+                    return;
+                }
+            }
+            
+            // 标准化方向向量
+            moveDirection = horizontalDirection.normalized;
+            
+            // 确保移动方向不为零
+            if (moveDirection.magnitude < 0.01f)
+            {
+                Debug.LogError("EntityMovement: 标准化后的移动方向为零，设置默认方向");
+                moveDirection = Vector3.forward; // 设置一个默认方向
+            }
+            
+            Debug.Log($"EntityMovement: 设置移动方向为 {moveDirection}, 原始方向={direction}");
         }
 
         /// <summary>
@@ -105,6 +162,7 @@ namespace SoulDefence.Entity
         public void StopMovement()
         {
             moveDirection = Vector3.zero;
+            // Debug.Log("EntityMovement: 停止移动");
         }
 
         /// <summary>

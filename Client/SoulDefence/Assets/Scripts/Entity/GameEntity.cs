@@ -18,7 +18,7 @@ namespace SoulDefence.Entity
 
         [Header("AI系统")]
         [SerializeField] private EntityType entityType = EntityType.Player;
-        [SerializeField] private bool useAI = false;
+        [SerializeField] private bool useAI = true;
 
         // AI控制器（根据实体类型动态创建）
         private EntityAI aiController;
@@ -36,6 +36,7 @@ namespace SoulDefence.Entity
         // Start is called before the first frame update
         void Start()
         {
+            Debug.Log($"GameEntity {name} 开始初始化，类型: {entityType}");
             InitializeEntity();
         }
 
@@ -64,6 +65,8 @@ namespace SoulDefence.Entity
 
             // 初始化AI系统
             InitializeAI();
+            
+            Debug.Log($"GameEntity {name} 初始化完成，类型: {entityType}, 队伍: {teamSystem.Team}, AI启用: {useAI}");
         }
 
         /// <summary>
@@ -76,9 +79,11 @@ namespace SoulDefence.Entity
                 case EntityType.Player:
                 case EntityType.Castle:
                     teamSystem.Team = TeamSystem.TeamType.Player;
+                    Debug.Log($"GameEntity {name} 设置为玩家队伍");
                     break;
                 case EntityType.Enemy:
                     teamSystem.Team = TeamSystem.TeamType.Enemy;
+                    Debug.Log($"GameEntity {name} 设置为敌人队伍");
                     break;
             }
         }
@@ -88,18 +93,20 @@ namespace SoulDefence.Entity
         /// </summary>
         private void SetDefaultAIState()
         {
-            switch (entityType)
-            {
-                case EntityType.Player:
-                    // 玩家AI默认关闭
-                    useAI = false;
-                    break;
-                case EntityType.Enemy:
-                case EntityType.Castle:
-                    // 敌人和城堡AI默认开启
-                    useAI = true;
-                    break;
-            }
+            // switch (entityType)
+            // {
+            //     case EntityType.Player:
+            //         // 玩家AI默认关闭
+            //         useAI = false;
+            //         Debug.Log($"GameEntity {name} AI默认关闭");
+            //         break;
+            //     case EntityType.Enemy:
+            //     case EntityType.Castle:
+            //         // 敌人和城堡AI默认开启
+            //         useAI = true;
+            //         Debug.Log($"GameEntity {name} AI默认开启");
+            //         break;
+            // }
         }
 
         /// <summary>
@@ -112,20 +119,29 @@ namespace SoulDefence.Entity
             {
                 case EntityType.Player:
                     aiController = new PlayerAI();
+                    Debug.Log($"GameEntity {name} 创建PlayerAI");
                     break;
                 case EntityType.Enemy:
                     aiController = new EnemyAI();
+                    Debug.Log($"GameEntity {name} 创建EnemyAI");
                     break;
                 case EntityType.Castle:
                     aiController = new CastleAI();
+                    Debug.Log($"GameEntity {name} 创建CastleAI");
                     break;
             }
 
             // 如果创建了AI控制器，初始化它
             if (aiController != null)
             {
+                Debug.Log($"GameEntity {name} 初始化AI控制器");
                 aiController.Initialize(transform, this, teamSystem);
                 aiController.AIEnabled = useAI;
+                Debug.Log($"GameEntity {name} AI控制器初始化完成，AI启用: {useAI}");
+            }
+            else
+            {
+                Debug.LogError($"GameEntity {name} AI控制器创建失败");
             }
         }
 
@@ -140,7 +156,15 @@ namespace SoulDefence.Entity
             // 更新AI逻辑
             if (aiController != null)
             {
-                aiController.UpdateAI();
+                if (useAI)
+                {
+                    aiController.UpdateAI();
+                }
+            }
+            else if (entityType != EntityType.Player)
+            {
+                // 对于非玩家实体，如果AI控制器为空，记录错误
+                Debug.LogError($"GameEntity {name} AI控制器为空，无法更新AI");
             }
         }
 
@@ -233,6 +257,7 @@ namespace SoulDefence.Entity
         public void ToggleAI(bool enabled)
         {
             useAI = enabled;
+            Debug.Log($"GameEntity {name} 切换AI状态: {enabled}");
             
             if (aiController != null)
             {
@@ -243,6 +268,10 @@ namespace SoulDefence.Entity
                 {
                     playerAI.ToggleAI(enabled);
                 }
+            }
+            else
+            {
+                Debug.LogError($"GameEntity {name} AI控制器为空，无法切换AI状态");
             }
         }
 

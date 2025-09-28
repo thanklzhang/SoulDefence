@@ -25,7 +25,7 @@ namespace SoulDefence.Entity
             base.Initialize(entityTransform, gameEntity, team);
             
             // 玩家AI默认不启用
-            aiEnabled = false;
+            // aiEnabled = false;
             
             // 设置检测范围
             detectionRange = 15f;

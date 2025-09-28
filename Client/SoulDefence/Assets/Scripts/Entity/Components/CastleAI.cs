@@ -24,7 +24,7 @@ namespace SoulDefence.Entity
             base.Initialize(entityTransform, gameEntity, team);
             
             // 城堡AI默认启用
-            aiEnabled = true;
+            // aiEnabled = true;
             
             // 设置检测范围和巡逻范围
             detectionRange = 15f;
