@@ -15,12 +15,13 @@ MonoBehaviour:
   skillId: 1
   skillName: 1111
   skillType: 1
+  isBasicAttack: 1
   damage: 1
   cooldown: 2
   targetCount: 1
   arcAngle: 60
   projectileSpeed: 10
   projectileLifetime: 4
-  canPierce: 0
-  isHoming: 0
+  canThrough: 0
+  isFollow: 0
   projectilePrefab: {fileID: 4208416461376389603, guid: 706a37e4d9b674eb7b1904b0d48196e2, type: 3}

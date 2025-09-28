@@ -190,7 +190,7 @@ namespace SoulDefence.Entity
         }
 
         /// <summary>
-        /// 攻击目标（当前仅输出日志）
+        /// 攻击目标（使用技能系统）
         /// </summary>
         /// <param name="target">攻击目标</param>
         protected void AttackTarget(Transform target)
@@ -204,9 +204,21 @@ namespace SoulDefence.Entity
             GameEntity targetEntity = target.GetComponent<GameEntity>();
             if (targetEntity != null && targetEntity.IsAlive)
             {
-                Debug.Log($"{entity.name} 攻击了 {targetEntity.name}，造成 {entity.Attributes.AttackPower} 伤害");
-                // 后续可以实现实际的伤害计算
-                // targetEntity.TakeDamage(entity.Attributes.AttackPower);
+                // 使用默认技能攻击目标
+                bool skillUsed = entity.UseDefaultSkill(target.position);
+                
+                if (skillUsed)
+                {
+                    Debug.Log($"{entity.name} 使用技能攻击了 {targetEntity.name}");
+                }
+                else
+                {
+                    // 如果技能使用失败（可能是冷却中），可以考虑其他行为
+                    Debug.Log($"{entity.name} 尝试攻击 {targetEntity.name}，但技能使用失败");
+                    
+                    // 可以在这里添加备用行为，比如移动到更好的位置
+                    // 或者等待技能冷却结束
+                }
             }
             else
             {

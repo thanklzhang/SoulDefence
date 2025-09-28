@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using SoulDefence.Skill;
 
 namespace SoulDefence.Entity
 {
@@ -13,10 +14,12 @@ namespace SoulDefence.Entity
     {
         [Header("敌人AI设置")]
         [SerializeField] private float targetUpdateInterval = 0.33f; // 目标更新间隔
+        //[SerializeField] private float attackInterval = 0.5f;       // 攻击尝试间隔
 
         private Transform castleTransform;                          // 城堡位置
         private Transform playerTransform;                          // 玩家位置
         private float lastTargetUpdateTime = 0f;
+        private float lastAttackAttemptTime = 0f;                   // 上次尝试攻击的时间
 
         /// <summary>
         /// 初始化敌人AI
@@ -100,7 +103,17 @@ namespace SoulDefence.Entity
                 if (distanceToTarget <= attackRange)
                 {
                     entity.StopMovement();
-                    AttackTarget(targetTransform);
+                    
+                    // 检查是否可以攻击（攻击间隔和技能冷却）
+                    if (CanAttack())
+                    {
+                        // 面向目标
+                        LookAtTarget(targetTransform);
+                        
+                        // 攻击目标
+                        AttackTarget(targetTransform);
+                        lastAttackAttemptTime = Time.time;
+                    }
                 }
                 // 否则继续移动
                 else
@@ -119,6 +132,48 @@ namespace SoulDefence.Entity
                 {
                     entity.StopMovement();
                 }
+            }
+        }
+
+        /// <summary>
+        /// 检查是否可以攻击（基于攻击间隔和技能冷却）
+        /// </summary>
+        private bool CanAttack()
+        {
+            // // 检查攻击间隔
+            // if (Time.time < lastAttackAttemptTime + attackInterval)
+            //     return false;
+            
+            // 获取默认技能
+            SkillData defaultSkill = entity.GetDefaultSkill();
+            if (defaultSkill == null)
+                return false;
+                
+            // 检查技能是否在冷却中
+            if (entity.IsSkillOnCooldown(defaultSkill))
+                return false;
+                
+            return true;
+        }
+        
+        /// <summary>
+        /// 使实体面向目标
+        /// </summary>
+        private void LookAtTarget(Transform target)
+        {
+            if (target == null || transform == null)
+                return;
+                
+            Vector3 direction = (target.position - transform.position).normalized;
+            direction.y = 0; // 保持在水平面上
+            
+            if (direction != Vector3.zero)
+            {
+                // 计算朝向目标的旋转
+                Quaternion targetRotation = Quaternion.LookRotation(direction);
+                
+                // 设置实体的朝向
+                transform.rotation = targetRotation;
             }
         }
 

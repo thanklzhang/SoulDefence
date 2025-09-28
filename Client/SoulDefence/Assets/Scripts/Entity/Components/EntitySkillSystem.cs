@@ -222,7 +222,24 @@ namespace SoulDefence.Entity
             if (skill == null)
                 return;
                 
-            skillCooldowns[skill] = skill.cooldown;
+            if (skill.isBasicAttack && owner != null && owner.Attributes != null)
+            {
+                // 如果是普通攻击，使用实体的攻击速度计算冷却时间
+                // 攻击速度越高，冷却时间越短
+                float attackSpeed = owner.Attributes.AttackSpeed;
+                if (attackSpeed <= 0)
+                    attackSpeed = 1f; // 防止除以零
+                
+                // 冷却时间 = 基础冷却时间 / 攻击速度
+                // 这样攻击速度为1时，冷却时间就是基础冷却时间
+                // 攻击速度为2时，冷却时间就是基础冷却时间的一半
+                skillCooldowns[skill] = 1.0f / attackSpeed;
+            }
+            else
+            {
+                // 非普通攻击，使用技能自身的冷却时间
+                skillCooldowns[skill] = skill.cooldown;
+            }
         }
         
         /// <summary>
@@ -234,6 +251,32 @@ namespace SoulDefence.Entity
                 return 0f;
                 
             return skillCooldowns[skill];
+        }
+        
+        /// <summary>
+        /// 获取技能的实际冷却时间（考虑攻击速度）
+        /// </summary>
+        /// <param name="skill">技能数据</param>
+        /// <returns>实际冷却时间</returns>
+        public float GetActualCooldown(SkillData skill)
+        {
+            if (skill == null)
+                return 0f;
+                
+            if (skill.isBasicAttack && owner != null && owner.Attributes != null)
+            {
+                // 如果是普通攻击，使用实体的攻击速度计算冷却时间
+                float attackSpeed = owner.Attributes.AttackSpeed;
+                if (attackSpeed <= 0)
+                    attackSpeed = 1f; // 防止除以零
+                
+                return skill.cooldown / attackSpeed;
+            }
+            else
+            {
+                // 非普通攻击，使用技能自身的冷却时间
+                return skill.cooldown;
+            }
         }
         
         /// <summary>

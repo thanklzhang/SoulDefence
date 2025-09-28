@@ -22,6 +22,7 @@ namespace SoulDefence.Skill
         public int skillId;                    // 技能ID
         public string skillName;               // 技能名称
         public SkillType skillType;            // 技能类型
+        public bool isBasicAttack = false;     // 是否为普通攻击
         
         [Header("通用参数")]
         public float damage;                   // 伤害值
