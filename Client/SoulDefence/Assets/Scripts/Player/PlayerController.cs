@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using SoulDefence.Entity;
 using UnityEngine;
 
 /// <summary>

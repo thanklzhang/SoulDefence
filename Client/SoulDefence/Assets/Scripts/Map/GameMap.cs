@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using SoulDefence.Map;
 using UnityEngine;
 
 /// <summary>
