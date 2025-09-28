@@ -24,9 +24,6 @@ namespace SoulDefence.Entity
         {
             base.Initialize(entityTransform, gameEntity, team);
             
-            // 敌人AI默认启用
-            // aiEnabled = true;
-            
             // 设置检测范围和巡逻范围
             detectionRange = 10f;
             patrolRange = 20f;  // 敌人的巡逻范围较大
@@ -37,15 +34,12 @@ namespace SoulDefence.Entity
             // 如果找不到城堡，尝试向场景中心移动
             if (castleTransform == null)
             {
-                Debug.LogWarning("找不到城堡，将使用场景中心作为默认移动目标");
                 // 创建一个空物体作为默认目标
                 GameObject defaultTarget = new GameObject("DefaultTarget");
                 defaultTarget.transform.position = Vector3.zero; // 场景中心
                 castleTransform = defaultTarget.transform;
                 targetTransform = castleTransform;
             }
-            
-            Debug.Log($"敌人AI初始化完成: AI启用={aiEnabled}, 目标={targetTransform?.name ?? "无"}");
         }
         
         /// <summary>
@@ -54,22 +48,13 @@ namespace SoulDefence.Entity
         public override void UpdateAI()
         {
             if (!aiEnabled)
-            {
-                Debug.LogWarning("敌人AI未启用");
                 return;
-            }
             
             if (entity == null)
-            {
-                Debug.LogError("敌人AI的实体引用为空");
                 return;
-            }
             
             if (!entity.IsAlive)
-            {
-                Debug.LogWarning("敌人已死亡，AI不执行");
                 return;
-            }
             
             // 按照决策间隔执行AI决策
             if (Time.time >= lastDecisionTime + decisionInterval)
@@ -92,17 +77,11 @@ namespace SoulDefence.Entity
                 
                 if (newTarget != null)
                 {
-                    Debug.Log($"敌人找到新目标: {newTarget.name}");
                     targetTransform = newTarget;
                 }
                 else if (castleTransform != null)
                 {
-                    Debug.Log("敌人未找到玩家，目标设为城堡");
                     targetTransform = castleTransform;
-                }
-                else
-                {
-                    Debug.LogWarning("敌人没有找到任何目标，包括城堡");
                 }
                 
                 lastTargetUpdateTime = Time.time;
@@ -115,32 +94,26 @@ namespace SoulDefence.Entity
                 float distanceToTarget = Vector3.Distance(transform.position, targetTransform.position);
                 float attackRange = GetAttackRange();
                 
-                Debug.Log($"敌人到目标({targetTransform.name})距离: {distanceToTarget}, 攻击范围: {attackRange}");
-                
                 // 如果在攻击范围内，停止移动并攻击
                 if (distanceToTarget <= attackRange)
                 {
-                    Debug.Log("敌人在攻击范围内，停止移动并攻击");
                     entity.StopMovement();
                     AttackTarget(targetTransform);
                 }
                 // 否则继续移动
                 else
                 {
-                    Debug.Log($"敌人向目标({targetTransform.name})移动");
                     MoveToTarget(targetTransform, attackRange);
                 }
             }
             else
             {
                 // 没有目标，尝试重新寻找城堡
-                Debug.LogWarning("敌人没有目标，尝试重新寻找城堡");
                 FindCastle();
                 
                 // 如果仍然没有目标，停止移动
                 if (targetTransform == null)
                 {
-                    Debug.LogError("敌人找不到任何目标，停止移动");
                     entity.StopMovement();
                 }
             }
@@ -151,54 +124,39 @@ namespace SoulDefence.Entity
         /// </summary>
         private void FindCastle()
         {
-            // 尝试通过标签查找城堡
-            GameObject castleObj = GameObject.FindGameObjectWithTag("Castle");
+            // 查找所有GameEntity
+            GameEntity[] allEntities = GameObject.FindObjectsOfType<GameEntity>();
             
-            // 如果没找到，尝试通过名称查找
-            if (castleObj == null)
+            // 首先尝试查找Castle类型的实体
+            foreach (GameEntity entity in allEntities)
             {
-                Debug.LogWarning("找不到标签为'Castle'的游戏对象，尝试通过名称查找");
-                castleObj = GameObject.Find("Castle");
-            }
-            
-            // 如果还没找到，尝试查找带有"castle"的游戏对象（不区分大小写）
-            if (castleObj == null)
-            {
-                Debug.LogWarning("找不到名称为'Castle'的游戏对象，尝试查找包含'castle'的游戏对象");
-                GameObject[] allObjects = GameObject.FindObjectsOfType<GameObject>();
-                foreach (GameObject obj in allObjects)
+                if (entity.Type == GameEntity.EntityType.Castle)
                 {
-                    if (obj.name.ToLower().Contains("castle"))
-                    {
-                        castleObj = obj;
-                        Debug.Log($"找到包含'castle'的游戏对象: {obj.name}");
-                        break;
-                    }
+                    castleTransform = entity.transform;
+                    targetTransform = castleTransform;
+                    return;
                 }
             }
             
-            // 如果找到了城堡，设置为目标
-            if (castleObj != null)
+            // 如果找不到Castle类型，尝试查找Player类型的实体
+            foreach (GameEntity entity in allEntities)
             {
-                Debug.Log($"找到城堡: {castleObj.name}");
-                castleTransform = castleObj.transform;
-                targetTransform = castleTransform;
-            }
-            else
-            {
-                Debug.LogError("无法找到任何可能的城堡对象");
-                
-                // 如果实在找不到，尝试找到玩家队伍的实体作为目标
-                GameEntity[] allEntities = GameObject.FindObjectsOfType<GameEntity>();
-                foreach (GameEntity entity in allEntities)
+                if (entity.Type == GameEntity.EntityType.Player)
                 {
-                    if (entity.TeamSystem.Team == TeamSystem.TeamType.Player)
-                    {
-                        Debug.Log($"找到玩家队伍实体作为替代目标: {entity.name}");
-                        castleTransform = entity.transform;
-                        targetTransform = castleTransform;
-                        break;
-                    }
+                    castleTransform = entity.transform;
+                    targetTransform = castleTransform;
+                    return;
+                }
+            }
+            
+            // 如果还是找不到，尝试查找任何玩家队伍的实体
+            foreach (GameEntity entity in allEntities)
+            {
+                if (entity.TeamSystem.Team == TeamSystem.TeamType.Player)
+                {
+                    castleTransform = entity.transform;
+                    targetTransform = castleTransform;
+                    return;
                 }
             }
         }

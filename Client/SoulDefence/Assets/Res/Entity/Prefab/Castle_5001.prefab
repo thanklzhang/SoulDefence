@@ -58,8 +58,8 @@ MonoBehaviour:
   movement:
     rotationSpeed: 10
   teamSystem:
-    team: 1
-  entityType: 1
+    team: 0
+  entityType: 2
   useAI: 1
 --- !u!1 &6995571868681314430
 GameObject:

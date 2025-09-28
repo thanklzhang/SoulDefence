@@ -112,7 +112,7 @@ namespace SoulDefence.Entity
                 rotationSpeed * Time.deltaTime
             );
             
-            Debug.Log($"EntityMovement: 实体已转向，面向方向={moveDirection}");
+            // Debug.Log($"EntityMovement: 实体已转向，面向方向={moveDirection}");
         }
 
         /// <summary>
