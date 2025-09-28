@@ -520,9 +520,17 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8985074666309259786, guid: 14e637e49eaeae942a71750d0e6249f0, type: 3}
-      propertyPath: attributes.moveSpeed
-      value: 20
+      propertyPath: skills.Array.size
+      value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8985074666309259786, guid: 14e637e49eaeae942a71750d0e6249f0, type: 3}
+      propertyPath: attributes.moveSpeed
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 8985074666309259786, guid: 14e637e49eaeae942a71750d0e6249f0, type: 3}
+      propertyPath: skills.Array.data[0]
+      value: 
+      objectReference: {fileID: 11400000, guid: eee179717b0c0433299545ff0711270c, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
