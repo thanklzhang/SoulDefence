@@ -62,10 +62,14 @@ MonoBehaviour:
     rotationSpeed: 10
   teamSystem:
     team: 0
+  skillSystem:
+    skills:
+    - {fileID: 11400000, guid: eee179717b0c0433299545ff0711270c, type: 2}
+    defaultSkillIndex: 0
+  effectSystem:
+    hitEffectPrefab: {fileID: 3923814919125156988, guid: 04940cbf52d194bbc93c330302d3a0ee, type: 3}
   entityType: 0
   useAI: 1
-  skills: []
-  defaultSkillIndex: 0
 --- !u!114 &676200474575042501
 MonoBehaviour:
   m_ObjectHideFlags: 0

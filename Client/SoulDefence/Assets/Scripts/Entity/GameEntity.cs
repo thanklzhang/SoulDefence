@@ -4,12 +4,14 @@ using UnityEngine;
 using System;
 using System.Linq;
 using SoulDefence.Skill;
+// 添加组件引用
+using SoulDefence.Entity;
 
 namespace SoulDefence.Entity
 {
     /// <summary>
     /// 游戏实体主类
-    /// 整合属性系统、移动系统、队伍系统和AI系统
+    /// 整合属性系统、移动系统、队伍系统、技能系统和AI系统
     /// </summary>
     [RequireComponent(typeof(Collider))]
     public class GameEntity : MonoBehaviour
@@ -18,23 +20,15 @@ namespace SoulDefence.Entity
         [SerializeField] private EntityAttributes attributes = new EntityAttributes();
         [SerializeField] private EntityMovement movement = new EntityMovement();
         [SerializeField] private TeamSystem teamSystem = new TeamSystem();
+        [SerializeField] private EntitySkillSystem skillSystem = new EntitySkillSystem();
+        [SerializeField] private EntityEffectSystem effectSystem = new EntityEffectSystem();
         
         [Header("AI系统")]
         [SerializeField] private EntityType entityType = EntityType.Player;
         [SerializeField] private bool useAI = true;
         
-        [Header("技能系统")]
-        [SerializeField] private SkillData[] skills;        // 实体拥有的技能
-        [SerializeField] private int defaultSkillIndex = 0; // 默认技能索引
-        
-        [Header("受伤反馈")]
-        [SerializeField] private GameObject hitEffectPrefab; // 受伤特效预制体
-        
         // AI控制器（根据实体类型动态创建）
         private EntityAI aiController;
-        
-        // 技能冷却时间
-        private Dictionary<SkillData, float> skillCooldowns = new Dictionary<SkillData, float>();
         
         /// <summary>
         /// 实体类型枚举
@@ -63,7 +57,7 @@ namespace SoulDefence.Entity
         void Update()
         {
             UpdateEntity();
-            UpdateSkillCooldowns();
+            skillSystem.UpdateCooldowns();
         }
 
         /// <summary>
@@ -104,17 +98,17 @@ namespace SoulDefence.Entity
             // 初始化移动系统
             movement.Initialize(transform, attributes);
             
+            // 初始化技能系统
+            skillSystem.Initialize(this);
+            
+            // 初始化特效系统
+            effectSystem.Initialize(this);
+            
             // 根据实体类型设置队伍
             SetTeamByEntityType();
-            
-            // 根据实体类型设置默认AI状态
-            SetDefaultAIState();
 
             // 初始化AI系统
             InitializeAI();
-            
-            // 初始化技能冷却
-            InitializeSkillCooldowns();
             
             Debug.Log($"GameEntity {name} 初始化完成，类型: {entityType}, 队伍: {teamSystem.Team}, AI启用: {useAI}");
         }
@@ -160,28 +154,6 @@ namespace SoulDefence.Entity
                     break;
             }
         }
-
-        /// <summary>
-        /// 根据实体类型设置默认AI状态
-        /// </summary>
-        private void SetDefaultAIState()
-        {
-            // switch (entityType)
-            // {
-            //     case EntityType.Player:
-            //         // 玩家AI默认关闭
-            //         useAI = false;
-            //         Debug.Log($"GameEntity {name} AI默认关闭");
-            //         break;
-            //     case EntityType.Enemy:
-            //     case EntityType.Castle:
-            //         // 敌人和城堡AI默认开启
-            //         useAI = true;
-            //         Debug.Log($"GameEntity {name} AI默认开启");
-            //         break;
-            // }
-        }
-
         /// <summary>
         /// 初始化AI系统
         /// </summary>
@@ -217,45 +189,8 @@ namespace SoulDefence.Entity
                 Debug.LogError($"GameEntity {name} AI控制器创建失败");
             }
         }
-
-        /// <summary>
-        /// 初始化技能冷却
-        /// </summary>
-        private void InitializeSkillCooldowns()
-        {
-            if (skills == null)
-                return;
-                
-            skillCooldowns.Clear();
-            foreach (var skill in skills)
-            {
-                if (skill != null)
-                {
-                    skillCooldowns[skill] = 0f;
-                }
-            }
-        }
-
-        /// <summary>
-        /// 更新技能冷却
-        /// </summary>
-        private void UpdateSkillCooldowns()
-        {
-            if (skillCooldowns.Count == 0)
-                return;
-                
-            foreach (var skill in skillCooldowns.Keys.ToArray())
-            {
-                if (skillCooldowns[skill] > 0)
-                {
-                    skillCooldowns[skill] -= Time.deltaTime;
-                    if (skillCooldowns[skill] < 0)
-                    {
-                        skillCooldowns[skill] = 0;
-                    }
-                }
-            }
-        }
+        
+        #region 技能系统转发方法
         
         /// <summary>
         /// 使用默认技能
@@ -264,11 +199,7 @@ namespace SoulDefence.Entity
         /// <returns>是否成功使用技能</returns>
         public bool UseDefaultSkill(Vector3 targetPosition)
         {
-            if (skills == null || skills.Length == 0 || defaultSkillIndex < 0 || defaultSkillIndex >= skills.Length)
-                return false;
-                
-            SkillData skill = skills[defaultSkillIndex];
-            return UseSkill(skill, targetPosition);
+            return skillSystem.UseDefaultSkill(targetPosition);
         }
 
         /// <summary>
@@ -277,11 +208,7 @@ namespace SoulDefence.Entity
         /// <returns>是否成功使用技能</returns>
         public bool UseDefaultSkill()
         {
-            if (skills == null || skills.Length == 0 || defaultSkillIndex < 0 || defaultSkillIndex >= skills.Length)
-                return false;
-                
-            SkillData skill = skills[defaultSkillIndex];
-            return UseSkill(skill);
+            return skillSystem.UseDefaultSkill();
         }
 
         /// <summary>
@@ -292,11 +219,7 @@ namespace SoulDefence.Entity
         /// <returns>是否成功使用技能</returns>
         public bool UseSkill(int skillIndex, Vector3 targetPosition)
         {
-            if (skills == null || skillIndex < 0 || skillIndex >= skills.Length)
-                return false;
-                
-            SkillData skill = skills[skillIndex];
-            return UseSkill(skill, targetPosition);
+            return skillSystem.UseSkill(skillIndex, targetPosition);
         }
 
         /// <summary>
@@ -306,11 +229,7 @@ namespace SoulDefence.Entity
         /// <returns>是否成功使用技能</returns>
         public bool UseSkill(int skillIndex)
         {
-            if (skills == null || skillIndex < 0 || skillIndex >= skills.Length)
-                return false;
-                
-            SkillData skill = skills[skillIndex];
-            return UseSkill(skill);
+            return skillSystem.UseSkill(skillIndex);
         }
 
         /// <summary>
@@ -321,34 +240,7 @@ namespace SoulDefence.Entity
         /// <returns>是否成功使用技能</returns>
         public bool UseSkill(SkillData skill, Vector3 targetPosition)
         {
-            if (skill == null || !IsAlive)
-                return false;
-                
-            // 检查冷却
-            if (IsSkillOnCooldown(skill))
-                return false;
-                
-            // 计算方向
-            Vector3 direction;
-            if (targetPosition != transform.position)
-            {
-                direction = (targetPosition - transform.position).normalized;
-            }
-            else
-            {
-                direction = transform.forward;
-            }
-            
-            // 使用技能
-            bool success = SkillSystem.Instance.UseSkill(this, skill, targetPosition, direction);
-            
-            // 如果成功使用，设置冷却
-            if (success)
-            {
-                SetSkillCooldown(skill);
-            }
-            
-            return success;
+            return skillSystem.UseSkill(skill, targetPosition);
         }
 
         /// <summary>
@@ -358,29 +250,7 @@ namespace SoulDefence.Entity
         /// <returns>是否成功使用技能</returns>
         public bool UseSkill(SkillData skill)
         {
-            if (skill == null || !IsAlive)
-                return false;
-                
-            // 检查冷却
-            if (IsSkillOnCooldown(skill))
-                return false;
-                
-            // 使用实体当前朝向
-            Vector3 direction = transform.forward;
-            
-            // 计算目标位置（在实体前方一定距离）
-            Vector3 targetPosition = transform.position + direction * 10f;
-            
-            // 使用技能
-            bool success = SkillSystem.Instance.UseSkill(this, skill, targetPosition, direction);
-            
-            // 如果成功使用，设置冷却
-            if (success)
-            {
-                SetSkillCooldown(skill);
-            }
-            
-            return success;
+            return skillSystem.UseSkill(skill);
         }
         
         /// <summary>
@@ -388,26 +258,7 @@ namespace SoulDefence.Entity
         /// </summary>
         public bool IsSkillOnCooldown(SkillData skill)
         {
-            if (skill == null)
-                return true;
-                
-            if (!skillCooldowns.ContainsKey(skill))
-            {
-                skillCooldowns[skill] = 0f;
-            }
-            
-            return skillCooldowns[skill] > 0;
-        }
-        
-        /// <summary>
-        /// 设置技能冷却
-        /// </summary>
-        private void SetSkillCooldown(SkillData skill)
-        {
-            if (skill == null)
-                return;
-                
-            skillCooldowns[skill] = skill.cooldown;
+            return skillSystem.IsSkillOnCooldown(skill);
         }
         
         /// <summary>
@@ -415,10 +266,7 @@ namespace SoulDefence.Entity
         /// </summary>
         public float GetSkillCooldown(SkillData skill)
         {
-            if (skill == null || !skillCooldowns.ContainsKey(skill))
-                return 0f;
-                
-            return skillCooldowns[skill];
+            return skillSystem.GetSkillCooldown(skill);
         }
         
         /// <summary>
@@ -426,7 +274,7 @@ namespace SoulDefence.Entity
         /// </summary>
         public SkillData[] GetSkills()
         {
-            return skills;
+            return skillSystem.GetSkills();
         }
         
         /// <summary>
@@ -434,10 +282,7 @@ namespace SoulDefence.Entity
         /// </summary>
         public SkillData GetDefaultSkill()
         {
-            if (skills == null || skills.Length == 0 || defaultSkillIndex < 0 || defaultSkillIndex >= skills.Length)
-                return null;
-                
-            return skills[defaultSkillIndex];
+            return skillSystem.GetDefaultSkill();
         }
         
         /// <summary>
@@ -445,11 +290,10 @@ namespace SoulDefence.Entity
         /// </summary>
         public void SetDefaultSkillIndex(int index)
         {
-            if (skills != null && index >= 0 && index < skills.Length)
-            {
-                defaultSkillIndex = index;
-            }
+            skillSystem.SetDefaultSkillIndex(index);
         }
+        
+        #endregion
 
         #region 公共接口
 
@@ -467,6 +311,11 @@ namespace SoulDefence.Entity
         /// 获取队伍系统
         /// </summary>
         public TeamSystem TeamSystem => teamSystem;
+        
+        /// <summary>
+        /// 获取技能系统
+        /// </summary>
+        public EntitySkillSystem SkillSystem => skillSystem;
 
         /// <summary>
         /// 获取AI控制器
@@ -526,7 +375,7 @@ namespace SoulDefence.Entity
             // 播放受伤特效
             if (actualDamage > 0)
             {
-                PlayHitEffect();
+                effectSystem.PlayHitEffect();
             }
             
             // 如果死亡，处理死亡事件
@@ -536,62 +385,6 @@ namespace SoulDefence.Entity
             }
             
             return actualDamage;
-        }
-        
-        /// <summary>
-        /// 播放受伤特效
-        /// </summary>
-        private void PlayHitEffect()
-        {
-            if (hitEffectPrefab != null)
-            {
-                // 在实体位置创建特效
-                GameObject effect = Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
-                
-                // 销毁特效(默认0.5秒)
-                Destroy(effect, 0.5f);
-            }
-            
-            // 简单的闪烁效果
-            StartCoroutine(FlashColor());
-        }
-        
-        /// <summary>
-        /// 简单的颜色闪烁效果
-        /// </summary>
-        private IEnumerator FlashColor()
-        {
-            // 获取所有渲染器
-            Renderer[] renderers = GetComponentsInChildren<Renderer>();
-            
-            // 保存原始颜色
-            List<Material> originalMaterials = new List<Material>();
-            foreach (Renderer renderer in renderers)
-            {
-                foreach (Material material in renderer.materials)
-                {
-                    originalMaterials.Add(new Material(material));
-                    material.color = Color.red;
-                    
-                }
-            }
-            
-            // 等待0.1秒
-            yield return new WaitForSeconds(0.1f);
-            
-            // 恢复原始颜色
-            int materialIndex = 0;
-            foreach (Renderer renderer in renderers)
-            {
-                for (int i = 0; i < renderer.materials.Length; i++)
-                {
-                    if (materialIndex < originalMaterials.Count)
-                    {
-                        renderer.materials[i].color = originalMaterials[materialIndex].color;
-                        materialIndex++;
-                    }
-                }
-            }
         }
 
         /// <summary>
