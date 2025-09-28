@@ -93,14 +93,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004042a65f559174da5fb698344b79e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minX: -50
-  maxX: 50
-  minZ: -50
-  maxZ: 50
-  enforceYLimit: 0
+  minX: -20.5
+  maxX: 20.5
+  minZ: -20.4
+  maxZ: 20.3
+  enforceYLimit: 1
   minY: 0
-  maxY: 10
+  maxY: 8.31
   boundaryType: 0
+  showBoundary: 1
+  boundaryColor: {r: 1, g: 0, b: 0, a: 1}
+  boundaryLineWidth: 2
 --- !u!114 &220561860468936031
 MonoBehaviour:
   m_ObjectHideFlags: 0

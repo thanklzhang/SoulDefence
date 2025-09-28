@@ -22,6 +22,9 @@ namespace SoulDefence.Entity
         // 组件引用
         private Transform transform;
         private EntityAttributes attributes;
+        
+        // 缓存的MapBoundary实例
+        private MapBoundary cachedBoundary;
 
         /// <summary>
         /// 初始化移动系统
@@ -32,10 +35,12 @@ namespace SoulDefence.Entity
         {
             transform = entityTransform;
             attributes = entityAttributes;
-            Debug.Log($"EntityMovement初始化: transform={transform!=null}, attributes={attributes!=null}");
+            
+            // 尝试获取MapBoundary实例
+            cachedBoundary = MapBoundary.Instance;
+            
+            Debug.Log($"EntityMovement初始化: transform={transform!=null}, attributes={attributes!=null}, boundary={cachedBoundary!=null}");
         }
-
-
 
         /// <summary>
         /// 执行移动和转向
@@ -62,23 +67,17 @@ namespace SoulDefence.Entity
                 Vector3 movement = moveDirection * moveSpeed * Time.deltaTime;
                 Vector3 newPosition = transform.position + movement;
                 
-                //Debug.Log($"EntityMovement: 移动方向={moveDirection}, 速度={moveSpeed}, 移动量={movement}");
-
                 // 检查地图边界限制
-                if (MapBoundary.Instance != null)
+                Vector3 boundedPosition = ApplyBoundaryLimits(newPosition);
+                
+                // 如果位置被边界限制，输出日志
+                if (boundedPosition != newPosition)
                 {
-                    // 如果新位置超出边界，将其限制在边界内
-                    Vector3 boundedPosition = MapBoundary.Instance.ClampPositionToBounds(newPosition);
-                    if (boundedPosition != newPosition)
-                    {
-                        // Debug.Log($"EntityMovement: 位置被边界限制，原位置={newPosition}, 新位置={boundedPosition}");
-                        newPosition = boundedPosition;
-                    }
+                    Debug.Log($"EntityMovement: 位置被边界限制，原位置={newPosition}, 新位置={boundedPosition}");
                 }
-
+                
                 // 应用移动
-                transform.position = newPosition;
-                // Debug.Log($"EntityMovement: 实体已移动到 {newPosition}");
+                transform.position = boundedPosition;
 
                 // 只有在移动时才执行转向
                 HandleRotation();
@@ -86,11 +85,50 @@ namespace SoulDefence.Entity
                 // 记录最后的移动方向
                 lastMoveDirection = moveDirection;
             }
-            else
+        }
+
+        /// <summary>
+        /// 应用边界限制
+        /// </summary>
+        /// <param name="position">原始位置</param>
+        /// <returns>限制后的位置</returns>
+        private Vector3 ApplyBoundaryLimits(Vector3 position)
+        {
+            // 如果缓存的边界为空，尝试重新获取
+            if (cachedBoundary == null)
             {
-                // 如果没有移动方向，记录日志
-                // Debug.Log("EntityMovement: 没有移动方向，保持静止");
+                cachedBoundary = MapBoundary.Instance;
+                
+                // 如果仍然为空，使用默认边界
+                if (cachedBoundary == null)
+                {
+                    Debug.LogWarning("EntityMovement: 找不到MapBoundary实例，使用默认边界");
+                    return ApplyDefaultBoundary(position);
+                }
             }
+            
+            // 使用缓存的边界限制位置
+            return cachedBoundary.ClampPositionToBounds(position);
+        }
+        
+        /// <summary>
+        /// 应用默认边界限制
+        /// </summary>
+        /// <param name="position">原始位置</param>
+        /// <returns>限制后的位置</returns>
+        private Vector3 ApplyDefaultBoundary(Vector3 position)
+        {
+            // 默认边界范围
+            float minX = -10f;
+            float maxX = 10f;
+            float minZ = -10f;
+            float maxZ = 10f;
+            
+            // 限制X和Z坐标
+            float x = Mathf.Clamp(position.x, minX, maxX);
+            float z = Mathf.Clamp(position.z, minZ, maxZ);
+            
+            return new Vector3(x, position.y, z);
         }
 
         /// <summary>
@@ -111,8 +149,6 @@ namespace SoulDefence.Entity
                 targetRotation, 
                 rotationSpeed * Time.deltaTime
             );
-            
-            // Debug.Log($"EntityMovement: 实体已转向，面向方向={moveDirection}");
         }
 
         /// <summary>
@@ -134,7 +170,6 @@ namespace SoulDefence.Entity
             // 如果方向向量太小，可能是无效的
             if (horizontalDirection.magnitude < 0.01f)
             {
-                // Debug.LogWarning("EntityMovement: 设置的移动方向太小，可能是无效的");
                 // 如果需要停止移动，应该调用StopMovement方法
                 if (direction.magnitude < 0.01f)
                 {
@@ -152,8 +187,6 @@ namespace SoulDefence.Entity
                 Debug.LogError("EntityMovement: 标准化后的移动方向为零，设置默认方向");
                 moveDirection = Vector3.forward; // 设置一个默认方向
             }
-            
-            Debug.Log($"EntityMovement: 设置移动方向为 {moveDirection}, 原始方向={direction}");
         }
 
         /// <summary>
@@ -162,7 +195,6 @@ namespace SoulDefence.Entity
         public void StopMovement()
         {
             moveDirection = Vector3.zero;
-            // Debug.Log("EntityMovement: 停止移动");
         }
 
         /// <summary>
