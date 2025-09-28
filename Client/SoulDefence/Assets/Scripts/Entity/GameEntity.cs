@@ -18,21 +18,24 @@ namespace SoulDefence.Entity
         [SerializeField] private EntityAttributes attributes = new EntityAttributes();
         [SerializeField] private EntityMovement movement = new EntityMovement();
         [SerializeField] private TeamSystem teamSystem = new TeamSystem();
-
+        
         [Header("AI系统")]
         [SerializeField] private EntityType entityType = EntityType.Player;
         [SerializeField] private bool useAI = true;
-
+        
         [Header("技能系统")]
         [SerializeField] private SkillData[] skills;        // 实体拥有的技能
         [SerializeField] private int defaultSkillIndex = 0; // 默认技能索引
-
+        
+        [Header("受伤反馈")]
+        [SerializeField] private GameObject hitEffectPrefab; // 受伤特效预制体
+        
         // AI控制器（根据实体类型动态创建）
         private EntityAI aiController;
         
         // 技能冷却时间
         private Dictionary<SkillData, float> skillCooldowns = new Dictionary<SkillData, float>();
-
+        
         /// <summary>
         /// 实体类型枚举
         /// </summary>
@@ -42,7 +45,7 @@ namespace SoulDefence.Entity
             Enemy,
             Castle
         }
-
+        
         private void Awake()
         {
             // 确保有碰撞器
@@ -53,7 +56,7 @@ namespace SoulDefence.Entity
         void Start()
         {
             Debug.Log($"GameEntity {name} 开始初始化，类型: {entityType}");
-            InitializeEntity(entityType);
+            InitializeEntity();
         }
 
         // Update is called once per frame
@@ -93,30 +96,50 @@ namespace SoulDefence.Entity
         /// <summary>
         /// 初始化实体
         /// </summary>
-        public void InitializeEntity(EntityType entityType = EntityType.Player)
+        private void InitializeEntity()
         {
-            this.entityType = entityType;
-            
-            // 初始化属性
+            // 初始化属性系统
             attributes.Initialize();
             
             // 初始化移动系统
             movement.Initialize(transform, attributes);
             
-            // 设置队伍
+            // 根据实体类型设置队伍
             SetTeamByEntityType();
             
-            // 初始化AI
-            InitializeAI();
-            
-            // 设置默认AI状态
+            // 根据实体类型设置默认AI状态
             SetDefaultAIState();
+
+            // 初始化AI系统
+            InitializeAI();
             
             // 初始化技能冷却
             InitializeSkillCooldowns();
             
-            // 确保有碰撞器
-            SetupCollider();
+            Debug.Log($"GameEntity {name} 初始化完成，类型: {entityType}, 队伍: {teamSystem.Team}, AI启用: {useAI}");
+        }
+
+        /// <summary>
+        /// 更新实体
+        /// </summary>
+        private void UpdateEntity()
+        {
+            // 执行移动（移动方向由外部或AI设置）
+            movement.Move();
+
+            // 更新AI逻辑
+            if (aiController != null)
+            {
+                if (useAI)
+                {
+                    aiController.UpdateAI();
+                }
+            }
+            else if (entityType != EntityType.Player)
+            {
+                // 对于非玩家实体，如果AI控制器为空，记录错误
+                Debug.LogError($"GameEntity {name} AI控制器为空，无法更新AI");
+            }
         }
 
         /// <summary>
@@ -180,7 +203,7 @@ namespace SoulDefence.Entity
                     Debug.Log($"GameEntity {name} 创建CastleAI");
                     break;
             }
-
+            
             // 如果创建了AI控制器，初始化它
             if (aiController != null)
             {
@@ -214,29 +237,6 @@ namespace SoulDefence.Entity
         }
 
         /// <summary>
-        /// 更新实体
-        /// </summary>
-        private void UpdateEntity()
-        {
-            // 执行移动（移动方向由外部或AI设置）
-            movement.Move();
-
-            // 更新AI逻辑
-            if (aiController != null)
-            {
-                if (useAI)
-                {
-                    aiController.UpdateAI();
-                }
-            }
-            else if (entityType != EntityType.Player)
-            {
-                // 对于非玩家实体，如果AI控制器为空，记录错误
-                Debug.LogError($"GameEntity {name} AI控制器为空，无法更新AI");
-            }
-        }
-
-        /// <summary>
         /// 更新技能冷却
         /// </summary>
         private void UpdateSkillCooldowns()
@@ -256,7 +256,7 @@ namespace SoulDefence.Entity
                 }
             }
         }
-
+        
         /// <summary>
         /// 使用默认技能
         /// </summary>
@@ -382,7 +382,7 @@ namespace SoulDefence.Entity
             
             return success;
         }
-
+        
         /// <summary>
         /// 检查技能是否在冷却中
         /// </summary>
@@ -398,7 +398,7 @@ namespace SoulDefence.Entity
             
             return skillCooldowns[skill] > 0;
         }
-
+        
         /// <summary>
         /// 设置技能冷却
         /// </summary>
@@ -409,7 +409,7 @@ namespace SoulDefence.Entity
                 
             skillCooldowns[skill] = skill.cooldown;
         }
-
+        
         /// <summary>
         /// 获取技能冷却剩余时间
         /// </summary>
@@ -420,7 +420,7 @@ namespace SoulDefence.Entity
                 
             return skillCooldowns[skill];
         }
-
+        
         /// <summary>
         /// 获取实体拥有的所有技能
         /// </summary>
@@ -428,7 +428,7 @@ namespace SoulDefence.Entity
         {
             return skills;
         }
-
+        
         /// <summary>
         /// 获取默认技能
         /// </summary>
@@ -439,7 +439,7 @@ namespace SoulDefence.Entity
                 
             return skills[defaultSkillIndex];
         }
-
+        
         /// <summary>
         /// 设置默认技能索引
         /// </summary>
@@ -520,7 +520,78 @@ namespace SoulDefence.Entity
         /// <returns>实际造成的伤害</returns>
         public float TakeDamage(float damage)
         {
-            return attributes.TakeDamage(damage);
+            // 应用伤害
+            float actualDamage = attributes.TakeDamage(damage);
+            
+            // 播放受伤特效
+            if (actualDamage > 0)
+            {
+                PlayHitEffect();
+            }
+            
+            // 如果死亡，处理死亡事件
+            if (!IsAlive)
+            {
+                OnDeath();
+            }
+            
+            return actualDamage;
+        }
+        
+        /// <summary>
+        /// 播放受伤特效
+        /// </summary>
+        private void PlayHitEffect()
+        {
+            if (hitEffectPrefab != null)
+            {
+                // 在实体位置创建特效
+                GameObject effect = Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
+                
+                // 销毁特效(默认0.5秒)
+                Destroy(effect, 0.5f);
+            }
+            
+            // 简单的闪烁效果
+            StartCoroutine(FlashColor());
+        }
+        
+        /// <summary>
+        /// 简单的颜色闪烁效果
+        /// </summary>
+        private IEnumerator FlashColor()
+        {
+            // 获取所有渲染器
+            Renderer[] renderers = GetComponentsInChildren<Renderer>();
+            
+            // 保存原始颜色
+            List<Material> originalMaterials = new List<Material>();
+            foreach (Renderer renderer in renderers)
+            {
+                foreach (Material material in renderer.materials)
+                {
+                    originalMaterials.Add(new Material(material));
+                    material.color = Color.red;
+                    
+                }
+            }
+            
+            // 等待0.1秒
+            yield return new WaitForSeconds(0.1f);
+            
+            // 恢复原始颜色
+            int materialIndex = 0;
+            foreach (Renderer renderer in renderers)
+            {
+                for (int i = 0; i < renderer.materials.Length; i++)
+                {
+                    if (materialIndex < originalMaterials.Count)
+                    {
+                        renderer.materials[i].color = originalMaterials[materialIndex].color;
+                        materialIndex++;
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -557,6 +628,24 @@ namespace SoulDefence.Entity
                 Debug.LogError($"GameEntity {name} AI控制器为空，无法切换AI状态");
             }
         }
+        
+        /// <summary>
+        /// 处理死亡
+        /// </summary>
+        private void OnDeath()
+        {
+            // 禁用AI
+            if (aiController != null)
+            {
+                aiController.AIEnabled = false;
+            }
+            
+            // 在这里可以添加死亡动画、音效等
+            Debug.Log($"{name} 已死亡");
+            
+            // 延迟销毁对象
+            Destroy(gameObject, 2f);
+        }
 
         /// <summary>
         /// 是否存活
@@ -567,7 +656,7 @@ namespace SoulDefence.Entity
         /// 是否正在移动
         /// </summary>
         public bool IsMoving => movement.IsMoving;
-
+        
         #endregion
     }
 } 

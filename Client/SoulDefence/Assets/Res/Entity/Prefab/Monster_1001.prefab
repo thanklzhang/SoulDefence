@@ -65,6 +65,7 @@ MonoBehaviour:
   useAI: 1
   skills: []
   defaultSkillIndex: 0
+  hitEffectPrefab: {fileID: 3923814919125156988, guid: 04940cbf52d194bbc93c330302d3a0ee, type: 3}
 --- !u!136 &8293849717494830943
 CapsuleCollider:
   m_ObjectHideFlags: 0

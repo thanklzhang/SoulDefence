@@ -477,7 +477,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   testEntity: {fileID: 0}
-  mainCamera: {fileID: 0}
   skillKey: 32
   skillKeys: 310000003200000033000000
   showDebugInfo: 1
@@ -541,6 +540,10 @@ PrefabInstance:
       propertyPath: useAI
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8985074666309259786, guid: 14e637e49eaeae942a71750d0e6249f0, type: 3}
+      propertyPath: hitEffectPrefab
+      value: 
+      objectReference: {fileID: 3923814919125156988, guid: 04940cbf52d194bbc93c330302d3a0ee, type: 3}
     - target: {fileID: 8985074666309259786, guid: 14e637e49eaeae942a71750d0e6249f0, type: 3}
       propertyPath: skills.Array.size
       value: 1

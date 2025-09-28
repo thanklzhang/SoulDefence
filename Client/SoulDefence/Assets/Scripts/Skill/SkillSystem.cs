@@ -286,7 +286,8 @@ namespace SoulDefence.Skill
             float defense = target.Attributes.Defense;
             
             // 简单的伤害公式：基础伤害 * (1 + 攻击力/100) - 防御/2
-            float damage = baseDamage * (1 + attackPower / 100) - defense / 2;
+            // float damage = baseDamage * (1 + attackPower / 100) - defense / 2;
+            float damage = attackPower - defense / 2;
             
             // 确保伤害至少为1
             return Mathf.Max(1, damage);
