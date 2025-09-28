@@ -259,7 +259,7 @@ namespace SoulDefence.Skill
             {
                 if (showDebugInfo)
                 {
-                    Debug.LogError($"ApplyDamage失败: attacker={attacker}, target={target}, target.IsAlive={target?.IsAlive}");
+                    // Debug.LogError($"ApplyDamage失败: attacker={attacker}, target={target}, target.IsAlive={target?.IsAlive}");
                 }
                 return;
             }
@@ -269,7 +269,7 @@ namespace SoulDefence.Skill
             
             if (showDebugInfo)
             {
-                Debug.Log($"{attacker.name}对{target.name}造成{actualDamage}点伤害");
+                // Debug.Log($"{attacker.name}对{target.name}造成{actualDamage}点伤害");
             }
             
             // 应用伤害

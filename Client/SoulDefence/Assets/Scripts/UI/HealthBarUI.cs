@@ -125,7 +125,23 @@ namespace SoulDefence.UI
                     RectTransform rectTransform = transform as RectTransform;
                     if (rectTransform != null)
                     {
-                        rectTransform.position = screenPosition;
+                        // 获取Canvas的RectTransform来进行坐标转换
+                        Canvas canvas = GetComponentInParent<Canvas>();
+                        if (canvas != null && canvas.renderMode == RenderMode.ScreenSpaceOverlay)
+                        {
+                            // 对于ScreenSpaceOverlay，直接使用屏幕坐标
+                            rectTransform.position = screenPosition;
+                        }
+                        else if (canvas != null)
+                        {
+                            // 对于其他Canvas模式，转换为Canvas局部坐标
+                            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                                canvas.transform as RectTransform,
+                                screenPosition,
+                                canvas.worldCamera,
+                                out Vector2 localPoint);
+                            rectTransform.anchoredPosition = localPoint;
+                        }
                     }
                     
                     gameObject.SetActive(true);

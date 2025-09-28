@@ -133,20 +133,18 @@ battleUI.SetPlayerEntity(playerEntity);
 
 ## 实体识别规则
 
-系统通过以下方式识别不同类型的实体：
+系统通过GameEntity的Type属性识别不同类型的实体：
 
 ### 玩家实体
-- 有`PlayerController`组件
-- 标签为"Player"
-- 名称包含"player"（不区分大小写）
+- `entity.Type == GameEntity.EntityType.Player`
 
 ### 敌人实体
-- 标签为"Enemy" 
-- 名称包含"enemy"或"monster"（不区分大小写）
+- `entity.Type == GameEntity.EntityType.Enemy`
 
 ### 城堡实体
-- 标签为"Castle"
-- 名称包含"castle"（不区分大小写）
+- `entity.Type == GameEntity.EntityType.Castle`
+
+这种方式更加可靠和高效，避免了字符串比较和组件查找的开销。
 
 ## 自定义扩展
 

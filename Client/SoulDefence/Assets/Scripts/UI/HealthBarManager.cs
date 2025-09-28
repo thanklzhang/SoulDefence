@@ -14,7 +14,7 @@ namespace SoulDefence.UI
         [SerializeField] private GameObject healthBarPrefab;                    // 血条预制体
         [SerializeField] private Transform healthBarContainer;                  // 血条容器
         [SerializeField] private bool autoCreateHealthBars = true;              // 是否自动创建血条
-        [SerializeField] private bool showPlayerHealthBar = false;              // 是否显示玩家血条
+        [SerializeField] private bool showPlayerHealthBar = true;              // 是否显示玩家血条
         [SerializeField] private bool showEnemyHealthBar = true;                // 是否显示敌人血条
         [SerializeField] private bool showCastleHealthBar = true;               // 是否显示城堡血条
         
@@ -124,89 +124,102 @@ namespace SoulDefence.UI
         /// </summary>
         private void CreateDefaultHealthBarPrefab()
         {
-            GameObject prefabGO = new GameObject("DefaultHealthBar");
-            prefabGO.AddComponent<HealthBarUI>();
+            // GameObject prefabGO = new GameObject("DefaultHealthBar");
+            // prefabGO.AddComponent<HealthBarUI>();
             
-            // 添加CanvasGroup组件
-            prefabGO.AddComponent<CanvasGroup>();
+            // // 添加CanvasGroup组件
+            // prefabGO.AddComponent<CanvasGroup>();
             
-            // 添加RectTransform组件
-            if (prefabGO.GetComponent<RectTransform>() == null)
-            {
-                prefabGO.AddComponent<RectTransform>();
-            }
+            // // 添加RectTransform组件
+            // if (prefabGO.GetComponent<RectTransform>() == null)
+            // {
+            //     prefabGO.AddComponent<RectTransform>();
+            // }
             
-            // 创建背景
-            GameObject backgroundGO = new GameObject("Background");
-            backgroundGO.transform.SetParent(prefabGO.transform, false);
-            var bgImage = backgroundGO.AddComponent<UnityEngine.UI.Image>();
-            bgImage.color = new Color(0, 0, 0, 0.5f);
-            var bgRect = backgroundGO.GetComponent<RectTransform>();
-            bgRect.sizeDelta = new Vector2(100, 20);
+            // // 创建背景
+            // GameObject backgroundGO = new GameObject("Background");
+            // backgroundGO.transform.SetParent(prefabGO.transform, false);
+            // var bgImage = backgroundGO.AddComponent<UnityEngine.UI.Image>();
+            // bgImage.color = new Color(0, 0, 0, 0.5f);
+            // var bgRect = backgroundGO.GetComponent<RectTransform>();
+            // bgRect.anchorMin = Vector2.zero;
+            // bgRect.anchorMax = Vector2.one;
+            // bgRect.sizeDelta = Vector2.zero;
+            // bgRect.anchoredPosition = Vector2.zero;
             
-            // 创建Slider
-            GameObject sliderGO = new GameObject("HealthSlider");
-            sliderGO.transform.SetParent(prefabGO.transform, false);
-            var slider = sliderGO.AddComponent<UnityEngine.UI.Slider>();
-            slider.transition = UnityEngine.UI.Selectable.Transition.None;
-            var sliderRect = sliderGO.GetComponent<RectTransform>();
-            sliderRect.sizeDelta = new Vector2(90, 10);
+            // // 创建Slider
+            // GameObject sliderGO = new GameObject("HealthSlider");
+            // sliderGO.transform.SetParent(prefabGO.transform, false);
+            // var slider = sliderGO.AddComponent<UnityEngine.UI.Slider>();
+            // slider.transition = UnityEngine.UI.Selectable.Transition.None;
+            // var sliderRect = sliderGO.GetComponent<RectTransform>();
+            // sliderRect.anchorMin = new Vector2(0.05f, 0.4f);
+            // sliderRect.anchorMax = new Vector2(0.95f, 0.8f);
+            // sliderRect.sizeDelta = Vector2.zero;
+            // sliderRect.anchoredPosition = Vector2.zero;
             
-            // 创建Slider背景
-            GameObject sliderBgGO = new GameObject("Background");
-            sliderBgGO.transform.SetParent(sliderGO.transform, false);
-            var sliderBgImage = sliderBgGO.AddComponent<UnityEngine.UI.Image>();
-            sliderBgImage.color = new Color(0.2f, 0.2f, 0.2f, 0.8f);
-            var sliderBgRect = sliderBgGO.GetComponent<RectTransform>();
-            sliderBgRect.anchorMin = Vector2.zero;
-            sliderBgRect.anchorMax = Vector2.one;
-            sliderBgRect.sizeDelta = Vector2.zero;
-            sliderBgRect.anchoredPosition = Vector2.zero;
+            // // 创建Slider背景
+            // GameObject sliderBgGO = new GameObject("Background");
+            // sliderBgGO.transform.SetParent(sliderGO.transform, false);
+            // var sliderBgImage = sliderBgGO.AddComponent<UnityEngine.UI.Image>();
+            // sliderBgImage.color = new Color(0.2f, 0.2f, 0.2f, 0.8f);
+            // var sliderBgRect = sliderBgGO.GetComponent<RectTransform>();
+            // sliderBgRect.anchorMin = Vector2.zero;
+            // sliderBgRect.anchorMax = Vector2.one;
+            // sliderBgRect.sizeDelta = Vector2.zero;
+            // sliderBgRect.anchoredPosition = Vector2.zero;
             
-            // 创建Slider填充区域
-            GameObject fillAreaGO = new GameObject("Fill Area");
-            fillAreaGO.transform.SetParent(sliderGO.transform, false);
-            var fillAreaRect = fillAreaGO.GetComponent<RectTransform>();
-            fillAreaRect.anchorMin = Vector2.zero;
-            fillAreaRect.anchorMax = Vector2.one;
-            fillAreaRect.sizeDelta = Vector2.zero;
-            fillAreaRect.anchoredPosition = Vector2.zero;
+            // // 创建Slider填充区域
+            // GameObject fillAreaGO = new GameObject("Fill Area");
+            // fillAreaGO.transform.SetParent(sliderGO.transform, false);
+            // var fillAreaRect = fillAreaGO.GetComponent<RectTransform>();
+            // fillAreaRect.anchorMin = Vector2.zero;
+            // fillAreaRect.anchorMax = Vector2.one;
+            // fillAreaRect.sizeDelta = Vector2.zero;
+            // fillAreaRect.anchoredPosition = Vector2.zero;
             
-            GameObject fillGO = new GameObject("Fill");
-            fillGO.transform.SetParent(fillAreaGO.transform, false);
-            var fillImage = fillGO.AddComponent<UnityEngine.UI.Image>();
-            fillImage.color = Color.green;
-            fillImage.type = UnityEngine.UI.Image.Type.Filled;
-            var fillRect = fillGO.GetComponent<RectTransform>();
-            fillRect.anchorMin = Vector2.zero;
-            fillRect.anchorMax = Vector2.one;
-            fillRect.sizeDelta = Vector2.zero;
-            fillRect.anchoredPosition = Vector2.zero;
+            // GameObject fillGO = new GameObject("Fill");
+            // fillGO.transform.SetParent(fillAreaGO.transform, false);
+            // var fillImage = fillGO.AddComponent<UnityEngine.UI.Image>();
+            // fillImage.color = Color.green;
+            // fillImage.type = UnityEngine.UI.Image.Type.Filled;
+            // var fillRect = fillGO.GetComponent<RectTransform>();
+            // fillRect.anchorMin = Vector2.zero;
+            // fillRect.anchorMax = Vector2.one;
+            // fillRect.sizeDelta = Vector2.zero;
+            // fillRect.anchoredPosition = Vector2.zero;
             
-            // 设置Slider引用
-            slider.fillRect = fillRect;
-            slider.value = 1f;
+            // // 设置Slider引用
+            // slider.fillRect = fillRect;
+            // slider.value = 1f;
             
-            // 创建文本
-            GameObject textGO = new GameObject("HealthText");
-            textGO.transform.SetParent(prefabGO.transform, false);
-            var text = textGO.AddComponent<TMPro.TextMeshProUGUI>();
-            text.text = "100/100";
-            text.color = Color.white;
-            text.fontSize = 12;
-            text.alignment = TMPro.TextAlignmentOptions.Center;
-            var textRect = textGO.GetComponent<RectTransform>();
-            textRect.sizeDelta = new Vector2(90, 15);
-            textRect.anchoredPosition = new Vector2(0, -15);
+            // // 创建文本
+            // GameObject textGO = new GameObject("HealthText");
+            // textGO.transform.SetParent(prefabGO.transform, false);
+            // var text = textGO.AddComponent<TMPro.TextMeshProUGUI>();
+            // text.text = "100/100";
+            // text.color = Color.white;
+            // text.fontSize = 12;
+            // text.alignment = TMPro.TextAlignmentOptions.Center;
+            // var textRect = textGO.GetComponent<RectTransform>();
+            // textRect.anchorMin = new Vector2(0.05f, 0f);
+            // textRect.anchorMax = new Vector2(0.95f, 0.4f);
+            // textRect.sizeDelta = Vector2.zero;
+            // textRect.anchoredPosition = Vector2.zero;
             
-            // 设置血条的RectTransform
-            var healthBarRect = prefabGO.GetComponent<RectTransform>();
-            healthBarRect.sizeDelta = new Vector2(100, 30);
+            // // 设置血条的RectTransform
+            // var healthBarRect = prefabGO.GetComponent<RectTransform>();
+            // healthBarRect.sizeDelta = new Vector2(100, 30);
             
-            // 设置预制体
-            healthBarPrefab = prefabGO;
+            // // 设置锚点和pivot为中心，这样血条会以中心点定位
+            // healthBarRect.anchorMin = new Vector2(0.5f, 0.5f);
+            // healthBarRect.anchorMax = new Vector2(0.5f, 0.5f);
+            // healthBarRect.pivot = new Vector2(0.5f, 0.5f);
             
-            Debug.Log("创建了默认血条预制体");
+            // // 设置预制体
+            // healthBarPrefab = prefabGO;
+            
+            // Debug.Log("创建了默认血条预制体");
         }
         
         /// <summary>
@@ -271,9 +284,7 @@ namespace SoulDefence.UI
         /// <returns>是否为玩家</returns>
         private bool IsPlayerEntity(GameEntity entity)
         {
-            return entity.GetComponent<PlayerController>() != null ||
-                   entity.CompareTag("Player") ||
-                   entity.name.ToLower().Contains("player");
+            return entity.Type == GameEntity.EntityType.Player;
         }
         
         /// <summary>
@@ -283,8 +294,7 @@ namespace SoulDefence.UI
         /// <returns>是否为城堡</returns>
         private bool IsCastleEntity(GameEntity entity)
         {
-            return entity.CompareTag("Castle") ||
-                   entity.name.ToLower().Contains("castle");
+            return entity.Type == GameEntity.EntityType.Castle;
         }
         
         /// <summary>
@@ -294,9 +304,7 @@ namespace SoulDefence.UI
         /// <returns>是否为敌人</returns>
         private bool IsEnemyEntity(GameEntity entity)
         {
-            return entity.CompareTag("Enemy") ||
-                   entity.name.ToLower().Contains("enemy") ||
-                   entity.name.ToLower().Contains("monster");
+            return entity.Type == GameEntity.EntityType.Enemy;
         }
         
         /// <summary>

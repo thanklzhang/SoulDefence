@@ -114,20 +114,7 @@ namespace SoulDefence.UI
         /// <returns>是否为玩家</returns>
         private bool IsPlayerEntity(GameEntity entity)
         {
-            // 可以通过多种方式判断：
-            // 1. 检查是否有PlayerController组件
-            if (entity.GetComponent<PlayerController>() != null)
-                return true;
-            
-            // 2. 检查标签
-            if (entity.CompareTag("Player"))
-                return true;
-            
-            // 3. 检查名称
-            if (entity.name.ToLower().Contains("player"))
-                return true;
-            
-            return false;
+            return entity.Type == GameEntity.EntityType.Player;
         }
         
         /// <summary>

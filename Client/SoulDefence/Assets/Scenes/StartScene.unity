@@ -756,7 +756,7 @@ MonoBehaviour:
   healthBarPrefab: {fileID: 8688100905989443812, guid: 5c42ece67b77970428de19c1d2e7c2b5, type: 3}
   healthBarContainer: {fileID: 427198204}
   autoCreateHealthBars: 1
-  showPlayerHealthBar: 0
+  showPlayerHealthBar: 1
   showEnemyHealthBar: 1
   showCastleHealthBar: 1
   scanInterval: 1

@@ -90,9 +90,9 @@ namespace SoulDefence.Entity
             
             // 在实际项目中，应该使用更高效的方式查找目标
             // 例如使用Physics.OverlapSphere或对象池
-            Debug.Log($"开始寻找目标，位置: {transform.position}, 巡逻范围: {patrolRange}");
+            // Debug.Log($"开始寻找目标，位置: {transform.position}, 巡逻范围: {patrolRange}");
             Collider[] colliders = Physics.OverlapSphere(transform.position, patrolRange);
-            Debug.Log($"在范围内找到 {colliders.Length} 个碰撞体");
+            // Debug.Log($"在范围内找到 {colliders.Length} 个碰撞体");
             
             Transform closestTarget = null;
             float closestDistance = float.MaxValue;
