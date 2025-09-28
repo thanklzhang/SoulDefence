@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using SoulDefence.Entity;
 
 namespace SoulDefence.UI
@@ -11,18 +12,18 @@ namespace SoulDefence.UI
     public class BattleUI : UIBasePanel
     {
         [Header("玩家状态显示")]
-        [SerializeField] private Text playerHealthText;          // 玩家生命值文本
-        [SerializeField] private Slider playerHealthSlider;      // 玩家生命值进度条
-        [SerializeField] private Image playerHealthFill;         // 生命值填充图片
+        [SerializeField] private TextMeshProUGUI playerHealthText;          // 玩家生命值文本
+        [SerializeField] private Slider playerHealthSlider;                 // 玩家生命值进度条
+        [SerializeField] private Image playerHealthFill;                    // 生命值填充图片
         
         [Header("属性显示")]
-        [SerializeField] private Text attackPowerText;          // 攻击力文本
-        [SerializeField] private Text defenseText;              // 防御力文本
-        [SerializeField] private Text attackSpeedText;          // 攻击速度文本
-        [SerializeField] private Text moveSpeedText;            // 移动速度文本
-        [SerializeField] private Text attackRangeText;          // 攻击距离文本
-        [SerializeField] private Text levelText;                // 等级文本
-        [SerializeField] private Text expText;                  // 经验值文本
+        [SerializeField] private TextMeshProUGUI attackPowerText;           // 攻击力文本
+        [SerializeField] private TextMeshProUGUI defenseText;               // 防御力文本
+        [SerializeField] private TextMeshProUGUI attackSpeedText;           // 攻击速度文本
+        [SerializeField] private TextMeshProUGUI moveSpeedText;             // 移动速度文本
+        [SerializeField] private TextMeshProUGUI attackRangeText;           // 攻击距离文本
+        [SerializeField] private TextMeshProUGUI levelText;                 // 等级文本
+        [SerializeField] private TextMeshProUGUI expText;                   // 经验值文本
         
         [Header("颜色配置")]
         [SerializeField] private Color healthHighColor = Color.green;    // 生命值高时的颜色
@@ -38,26 +39,26 @@ namespace SoulDefence.UI
             
             // 查找UI组件（如果没有在Inspector中设置）
             if (playerHealthText == null)
-                playerHealthText = FindComponent<Text>("PlayerHealth/HealthText");
+                playerHealthText = FindComponent<TextMeshProUGUI>("PlayerHealth/HealthText");
             if (playerHealthSlider == null)
                 playerHealthSlider = FindComponent<Slider>("PlayerHealth/HealthSlider");
             if (playerHealthFill == null && playerHealthSlider != null)
                 playerHealthFill = playerHealthSlider.fillRect?.GetComponent<Image>();
             
             if (attackPowerText == null)
-                attackPowerText = FindComponent<Text>("Attributes/AttackPower/ValueText");
+                attackPowerText = FindComponent<TextMeshProUGUI>("Attributes/AttackPower/ValueText");
             if (defenseText == null)
-                defenseText = FindComponent<Text>("Attributes/Defense/ValueText");
+                defenseText = FindComponent<TextMeshProUGUI>("Attributes/Defense/ValueText");
             if (attackSpeedText == null)
-                attackSpeedText = FindComponent<Text>("Attributes/AttackSpeed/ValueText");
+                attackSpeedText = FindComponent<TextMeshProUGUI>("Attributes/AttackSpeed/ValueText");
             if (moveSpeedText == null)
-                moveSpeedText = FindComponent<Text>("Attributes/MoveSpeed/ValueText");
+                moveSpeedText = FindComponent<TextMeshProUGUI>("Attributes/MoveSpeed/ValueText");
             if (attackRangeText == null)
-                attackRangeText = FindComponent<Text>("Attributes/AttackRange/ValueText");
+                attackRangeText = FindComponent<TextMeshProUGUI>("Attributes/AttackRange/ValueText");
             if (levelText == null)
-                levelText = FindComponent<Text>("PlayerInfo/LevelText");
+                levelText = FindComponent<TextMeshProUGUI>("PlayerInfo/LevelText");
             if (expText == null)
-                expText = FindComponent<Text>("PlayerInfo/ExpText");
+                expText = FindComponent<TextMeshProUGUI>("PlayerInfo/ExpText");
             
             // 初始化UI状态
             UpdateUI();

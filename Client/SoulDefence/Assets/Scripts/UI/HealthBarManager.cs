@@ -190,12 +190,11 @@ namespace SoulDefence.UI
             // 创建文本
             GameObject textGO = new GameObject("HealthText");
             textGO.transform.SetParent(prefabGO.transform, false);
-            var text = textGO.AddComponent<UnityEngine.UI.Text>();
+            var text = textGO.AddComponent<TMPro.TextMeshProUGUI>();
             text.text = "100/100";
             text.color = Color.white;
             text.fontSize = 12;
-            text.alignment = TextAnchor.MiddleCenter;
-            text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            text.alignment = TMPro.TextAlignmentOptions.Center;
             var textRect = textGO.GetComponent<RectTransform>();
             textRect.sizeDelta = new Vector2(90, 15);
             textRect.anchoredPosition = new Vector2(0, -15);

@@ -181,7 +181,7 @@ UIManager.Instance.OpenPanel<CustomUI>();
 1. 创建包含以下组件的预制体：
    - `HealthBarUI`脚本
    - `Slider`组件（生命值进度条）
-   - `Text`组件（生命值文本）
+   - `TextMeshProUGUI`组件（生命值文本）
    - `CanvasGroup`组件（透明度控制）
 
 2. 在`UIInitializer`中设置：
@@ -195,6 +195,7 @@ UIManager.Instance.OpenPanel<CustomUI>();
 2. **摄像机设置**：血条系统需要主摄像机（Camera.main）
 3. **性能考虑**：大量实体时可以调整血条的`maxHealthBars`参数
 4. **UI层级**：UI管理器会自动处理面板层级，避免手动修改Canvas的sortingOrder
+5. **TextMeshPro依赖**：系统使用TextMeshPro进行文本渲染，确保项目已导入TextMeshPro包
 
 ## 故障排除
 
@@ -217,4 +218,4 @@ UIManager.Instance.OpenPanel<CustomUI>();
 
 - 当前版本：1.0
 - 兼容Unity版本：2021.3+
-- 依赖：Unity UI (uGUI) 
+- 依赖：Unity UI (uGUI), TextMeshPro 

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using SoulDefence.Entity;
 
 namespace SoulDefence.UI
@@ -13,12 +14,12 @@ namespace SoulDefence.UI
         [Header("UI组件")]
         [SerializeField] private Slider healthSlider;           // 生命值进度条
         [SerializeField] private Image healthFill;              // 生命值填充图片
-        [SerializeField] private Text healthText;               // 生命值文本
+        [SerializeField] private TextMeshProUGUI healthText;    // 生命值文本
         [SerializeField] private CanvasGroup canvasGroup;       // 用于控制透明度
         
         [Header("跟随设置")]
         [SerializeField] private Vector3 worldOffset = new Vector3(0, 2f, 0);  // 世界坐标偏移
-        [SerializeField] private bool lookAtCamera = true;                      // 是否面向摄像机
+        // [SerializeField] private bool lookAtCamera = true;                      // 是否面向摄像机
         [SerializeField] private bool hideWhenFull = false;                     // 满血时是否隐藏
         [SerializeField] private bool hideWhenDead = true;                      // 死亡时是否隐藏
         
@@ -51,7 +52,7 @@ namespace SoulDefence.UI
                 healthFill = healthSlider.fillRect?.GetComponent<Image>();
             
             if (healthText == null)
-                healthText = GetComponentInChildren<Text>();
+                healthText = GetComponentInChildren<TextMeshProUGUI>();
             
             if (canvasGroup == null)
                 canvasGroup = GetComponent<CanvasGroup>();

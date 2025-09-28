@@ -1,4 +1,5 @@
 using UnityEngine;
+using TMPro;
 
 namespace SoulDefence.UI
 {
@@ -168,12 +169,11 @@ namespace SoulDefence.UI
             // 创建生命值文本
             GameObject healthTextGO = new GameObject("HealthText");
             healthTextGO.transform.SetParent(playerHealthGO.transform, false);
-            var healthText = healthTextGO.AddComponent<UnityEngine.UI.Text>();
+            var healthText = healthTextGO.AddComponent<TextMeshProUGUI>();
             healthText.text = "100/100";
             healthText.color = Color.white;
             healthText.fontSize = 16;
-            healthText.alignment = TextAnchor.MiddleCenter;
-            healthText.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            healthText.alignment = TextAlignmentOptions.Center;
             var healthTextRect = healthTextGO.GetComponent<RectTransform>();
             healthTextRect.anchorMin = Vector2.zero;
             healthTextRect.anchorMax = Vector2.one;
@@ -268,43 +268,41 @@ namespace SoulDefence.UI
         /// <param name="index">索引</param>
         private void CreateAttributeItem(GameObject parent, string attributeName, string displayName, int index)
         {
-            GameObject itemGO = new GameObject(attributeName);
-            itemGO.transform.SetParent(parent.transform, false);
-            
-            var itemRect = itemGO.AddComponent<RectTransform>();
-            itemRect.anchorMin = new Vector2(0, 1);
-            itemRect.anchorMax = new Vector2(1, 1);
-            itemRect.anchoredPosition = new Vector2(0, -10 - index * 35);
-            itemRect.sizeDelta = new Vector2(-10, 30);
-            
-            // 创建标签
-            GameObject labelGO = new GameObject("Label");
-            labelGO.transform.SetParent(itemGO.transform, false);
-            var labelText = labelGO.AddComponent<UnityEngine.UI.Text>();
-            labelText.text = displayName + ":";
-            labelText.color = Color.white;
-            labelText.fontSize = 14;
-            labelText.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
-            var labelRect = labelGO.GetComponent<RectTransform>();
-            labelRect.anchorMin = new Vector2(0, 0);
-            labelRect.anchorMax = new Vector2(0.6f, 1);
-            labelRect.sizeDelta = Vector2.zero;
-            labelRect.anchoredPosition = Vector2.zero;
-            
-            // 创建数值文本
-            GameObject valueGO = new GameObject("ValueText");
-            valueGO.transform.SetParent(itemGO.transform, false);
-            var valueText = valueGO.AddComponent<UnityEngine.UI.Text>();
-            valueText.text = "0";
-            valueText.color = Color.yellow;
-            valueText.fontSize = 14;
-            valueText.alignment = TextAnchor.MiddleRight;
-            valueText.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
-            var valueRect = valueGO.GetComponent<RectTransform>();
-            valueRect.anchorMin = new Vector2(0.6f, 0);
-            valueRect.anchorMax = new Vector2(1, 1);
-            valueRect.sizeDelta = Vector2.zero;
-            valueRect.anchoredPosition = Vector2.zero;
+            // GameObject itemGO = new GameObject(attributeName);
+            // itemGO.transform.SetParent(parent.transform, false);
+            //
+            // var itemRect = itemGO.AddComponent<RectTransform>();
+            // itemRect.anchorMin = new Vector2(0, 1);
+            // itemRect.anchorMax = new Vector2(1, 1);
+            // itemRect.anchoredPosition = new Vector2(0, -10 - index * 35);
+            // itemRect.sizeDelta = new Vector2(-10, 30);
+            //
+            // // 创建标签
+            // GameObject labelGO = new GameObject("Label");
+            // labelGO.transform.SetParent(itemGO.transform, false);
+            // var labelText = labelGO.AddComponent<TextMeshProUGUI>();
+            // labelText.text = displayName + ":";
+            // labelText.color = Color.white;
+            // labelText.fontSize = 14;
+            // var labelRect = labelGO.GetComponent<RectTransform>();
+            // labelRect.anchorMin = new Vector2(0, 0);
+            // labelRect.anchorMax = new Vector2(0.6f, 1);
+            // labelRect.sizeDelta = Vector2.zero;
+            // labelRect.anchoredPosition = Vector2.zero;
+            //
+            // // 创建数值文本
+            // GameObject valueGO = new GameObject("ValueText");
+            // valueGO.transform.SetParent(itemGO.transform, false);
+            // var valueText = valueGO.AddComponent<TextMeshProUGUI>();
+            // valueText.text = "0";
+            // valueText.color = Color.yellow;
+            // valueText.fontSize = 14;
+            // valueText.alignment = TextAlignmentOptions.MiddleRight;
+            // var valueRect = valueGO.GetComponent<RectTransform>();
+            // valueRect.anchorMin = new Vector2(0.6f, 0);
+            // valueRect.anchorMax = new Vector2(1, 1);
+            // valueRect.sizeDelta = Vector2.zero;
+            // valueRect.anchoredPosition = Vector2.zero;
         }
         
         /// <summary>
@@ -329,11 +327,10 @@ namespace SoulDefence.UI
             // 创建等级文本
             GameObject levelTextGO = new GameObject("LevelText");
             levelTextGO.transform.SetParent(playerInfoGO.transform, false);
-            var levelText = levelTextGO.AddComponent<UnityEngine.UI.Text>();
+            var levelText = levelTextGO.AddComponent<TextMeshProUGUI>();
             levelText.text = "Lv.1";
             levelText.color = Color.white;
             levelText.fontSize = 16;
-            levelText.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
             var levelRect = levelTextGO.GetComponent<RectTransform>();
             levelRect.anchorMin = new Vector2(0.05f, 0.5f);
             levelRect.anchorMax = new Vector2(0.95f, 1f);
@@ -343,11 +340,10 @@ namespace SoulDefence.UI
             // 创建经验文本
             GameObject expTextGO = new GameObject("ExpText");
             expTextGO.transform.SetParent(playerInfoGO.transform, false);
-            var expText = expTextGO.AddComponent<UnityEngine.UI.Text>();
+            var expText = expTextGO.AddComponent<TextMeshProUGUI>();
             expText.text = "EXP: 0";
             expText.color = Color.cyan;
             expText.fontSize = 14;
-            expText.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
             var expRect = expTextGO.GetComponent<RectTransform>();
             expRect.anchorMin = new Vector2(0.05f, 0f);
             expRect.anchorMax = new Vector2(0.95f, 0.5f);

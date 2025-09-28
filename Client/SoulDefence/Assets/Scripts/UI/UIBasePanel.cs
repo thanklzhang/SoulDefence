@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 namespace SoulDefence.UI
 {
@@ -215,7 +216,7 @@ namespace SoulDefence.UI
         /// <param name="text">文本内容</param>
         protected void SetText(string path, string text)
         {
-            Text textComponent = FindComponent<Text>(path);
+            TextMeshProUGUI textComponent = FindComponent<TextMeshProUGUI>(path);
             if (textComponent != null)
             {
                 textComponent.text = text;
