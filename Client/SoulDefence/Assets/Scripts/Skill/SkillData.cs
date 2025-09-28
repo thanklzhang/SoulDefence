@@ -15,7 +15,7 @@ namespace SoulDefence.Skill
     /// <summary>
     /// 技能数据，使用ScriptableObject存储技能配置
     /// </summary>
-    [CreateAssetMenu(fileName = "New Skill", menuName = "SoulDefence/Skill")]
+    [CreateAssetMenu(fileName = "New Skill", menuName = "GameConfig/Skill")]
     public class SkillData : ScriptableObject
     {
         [Header("基础信息")]

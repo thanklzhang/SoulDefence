@@ -11,7 +11,7 @@ namespace SoulDefence.Entity
     [System.Serializable]
     public class EntityEffectSystem
     {
-        [SerializeField] private GameObject hitEffectPrefab; // 受伤特效预制体
+        [SerializeField] private EntityEffectData effectData;  // 特效数据配置
         
         // 实体引用
         private GameEntity owner;
@@ -29,17 +29,31 @@ namespace SoulDefence.Entity
         }
         
         /// <summary>
+        /// 设置特效数据配置
+        /// </summary>
+        public void SetEffectData(EntityEffectData data)
+        {
+            effectData = data;
+        }
+        
+        /// <summary>
         /// 播放受伤特效
         /// </summary>
         public void PlayHitEffect()
         {
-            if (hitEffectPrefab != null)
+            if (effectData == null)
+            {
+                Debug.LogWarning("EntityEffectSystem: effectData is null!");
+                return;
+            }
+            
+            if (effectData.hitEffectPrefab != null)
             {
                 // 在实体位置创建特效
-                GameObject effect = Object.Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
+                GameObject effect = Object.Instantiate(effectData.hitEffectPrefab, transform.position, Quaternion.identity);
                 
-                // 销毁特效(默认0.5秒)
-                Object.Destroy(effect, 0.5f);
+                // 销毁特效
+                Object.Destroy(effect, effectData.hitFlashDuration * 5f); // 给足够时间播放完特效
             }
             
             // 简单的闪烁效果
@@ -47,10 +61,43 @@ namespace SoulDefence.Entity
         }
         
         /// <summary>
+        /// 播放死亡特效
+        /// </summary>
+        public void PlayDeathEffect()
+        {
+            if (effectData == null || effectData.deathEffectPrefab == null)
+                return;
+                
+            // 在实体位置创建死亡特效
+            GameObject effect = Object.Instantiate(effectData.deathEffectPrefab, transform.position, Quaternion.identity);
+            
+            // 销毁特效
+            Object.Destroy(effect, effectData.deathEffectDuration);
+        }
+        
+        /// <summary>
+        /// 播放升级特效
+        /// </summary>
+        public void PlayLevelUpEffect()
+        {
+            if (effectData == null || effectData.levelUpEffectPrefab == null)
+                return;
+                
+            // 在实体位置创建升级特效
+            GameObject effect = Object.Instantiate(effectData.levelUpEffectPrefab, transform.position, Quaternion.identity);
+            
+            // 销毁特效
+            Object.Destroy(effect, effectData.levelUpEffectDuration);
+        }
+        
+        /// <summary>
         /// 简单的颜色闪烁效果
         /// </summary>
         private IEnumerator FlashColor()
         {
+            if (effectData == null)
+                yield break;
+                
             // 获取所有渲染器
             Renderer[] renderers = owner.GetComponentsInChildren<Renderer>();
             
@@ -61,12 +108,12 @@ namespace SoulDefence.Entity
                 foreach (Material material in renderer.materials)
                 {
                     originalMaterials.Add(new Material(material));
-                    material.color = Color.red;
+                    material.color = effectData.hitFlashColor;
                 }
             }
             
-            // 等待0.1秒
-            yield return new WaitForSeconds(0.1f);
+            // 等待指定时间
+            yield return new WaitForSeconds(effectData.hitFlashDuration);
             
             // 恢复原始颜色
             int materialIndex = 0;
@@ -81,6 +128,14 @@ namespace SoulDefence.Entity
                     }
                 }
             }
+        }
+        
+        /// <summary>
+        /// 获取特效数据配置
+        /// </summary>
+        public EntityEffectData GetEffectData()
+        {
+            return effectData;
         }
     }
 } 

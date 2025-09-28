@@ -46,12 +46,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attributes:
-    maxHealth: 100
-    attackPower: 10
-    defense: 5
-    attackSpeed: 1
-    moveSpeed: 5
-    attackRange: 2
+    attributesData: {fileID: 11400000, guid: 5f39c0f4fe0f74312a5a6e62b4706af3, type: 2}
     currentHealth: 0
     currentLevel: 1
     currentExp: 0
@@ -59,6 +54,11 @@ MonoBehaviour:
     rotationSpeed: 10
   teamSystem:
     team: 0
+  skillSystem:
+    skills: []
+    defaultSkillIndex: 0
+  effectSystem:
+    effectData: {fileID: 11400000, guid: e510946e611bc44c3806ff90600b6e09, type: 2}
   entityType: 2
   useAI: 1
 --- !u!1 &6995571868681314430

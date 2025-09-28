@@ -11,13 +11,8 @@ namespace SoulDefence.Entity
     [System.Serializable]
     public class EntityAttributes
     {
-        [Header("基础属性")]
-        [SerializeField] private float maxHealth = 100f;        // 最大生命值
-        [SerializeField] private float attackPower = 10f;       // 攻击力
-        [SerializeField] private float defense = 5f;            // 防御力
-        [SerializeField] private float attackSpeed = 1f;        // 攻击速度
-        [SerializeField] private float moveSpeed = 5f;          // 移动速度
-        [SerializeField] private float attackRange = 2f;        // 攻击距离
+        [Header("属性配置")]
+        [SerializeField] private EntityAttributesData attributesData;  // 属性数据配置
 
         [Header("当前状态属性")]
         [SerializeField] private float currentHealth;           // 当前生命值
@@ -29,45 +24,115 @@ namespace SoulDefence.Entity
         /// </summary>
         public void Initialize()
         {
-            currentHealth = maxHealth;
+            if (attributesData != null)
+            {
+                currentHealth = attributesData.maxHealth;
+                currentLevel = attributesData.baseLevel;
+                currentExp = 0f;
+            }
+            else
+            {
+                Debug.LogError("EntityAttributes: attributesData is null!");
+                currentHealth = 100f; // 默认值
+                currentLevel = 1;
+                currentExp = 0f;
+            }
+        }
+
+        /// <summary>
+        /// 设置属性数据配置
+        /// </summary>
+        public void SetAttributesData(EntityAttributesData data)
+        {
+            attributesData = data;
+            Initialize();
         }
 
         #region 基础属性访问器
         
         public float MaxHealth 
         { 
-            get => maxHealth; 
-            set => maxHealth = Mathf.Max(0f, value); 
+            get => attributesData != null ? attributesData.maxHealth : 100f; 
+            set 
+            {
+                if (attributesData != null)
+                {
+                    // 这里我们不直接修改ScriptableObject，而是创建一个新的实例
+                    EntityAttributesData newData = ScriptableObject.Instantiate(attributesData);
+                    newData.maxHealth = Mathf.Max(0f, value);
+                    attributesData = newData;
+                }
+            }
         }
         
         public float AttackPower 
         { 
-            get => attackPower; 
-            set => attackPower = Mathf.Max(0f, value); 
+            get => attributesData != null ? attributesData.attackPower : 10f; 
+            set 
+            {
+                if (attributesData != null)
+                {
+                    EntityAttributesData newData = ScriptableObject.Instantiate(attributesData);
+                    newData.attackPower = Mathf.Max(0f, value);
+                    attributesData = newData;
+                }
+            }
         }
         
         public float Defense 
         { 
-            get => defense; 
-            set => defense = Mathf.Max(0f, value); 
+            get => attributesData != null ? attributesData.defense : 5f; 
+            set 
+            {
+                if (attributesData != null)
+                {
+                    EntityAttributesData newData = ScriptableObject.Instantiate(attributesData);
+                    newData.defense = Mathf.Max(0f, value);
+                    attributesData = newData;
+                }
+            }
         }
         
         public float AttackSpeed 
         { 
-            get => attackSpeed; 
-            set => attackSpeed = Mathf.Max(0f, value); 
+            get => attributesData != null ? attributesData.attackSpeed : 1f; 
+            set 
+            {
+                if (attributesData != null)
+                {
+                    EntityAttributesData newData = ScriptableObject.Instantiate(attributesData);
+                    newData.attackSpeed = Mathf.Max(0f, value);
+                    attributesData = newData;
+                }
+            }
         }
         
         public float MoveSpeed 
         { 
-            get => moveSpeed; 
-            set => moveSpeed = Mathf.Max(0f, value); 
+            get => attributesData != null ? attributesData.moveSpeed : 5f; 
+            set 
+            {
+                if (attributesData != null)
+                {
+                    EntityAttributesData newData = ScriptableObject.Instantiate(attributesData);
+                    newData.moveSpeed = Mathf.Max(0f, value);
+                    attributesData = newData;
+                }
+            }
         }
         
         public float AttackRange 
         { 
-            get => attackRange; 
-            set => attackRange = Mathf.Max(0f, value); 
+            get => attributesData != null ? attributesData.attackRange : 2f; 
+            set 
+            {
+                if (attributesData != null)
+                {
+                    EntityAttributesData newData = ScriptableObject.Instantiate(attributesData);
+                    newData.attackRange = Mathf.Max(0f, value);
+                    attributesData = newData;
+                }
+            }
         }
 
         #endregion
@@ -77,7 +142,7 @@ namespace SoulDefence.Entity
         public float CurrentHealth 
         { 
             get => currentHealth; 
-            set => currentHealth = Mathf.Clamp(value, 0f, maxHealth); 
+            set => currentHealth = Mathf.Clamp(value, 0f, MaxHealth); 
         }
         
         public int CurrentLevel 
@@ -104,7 +169,7 @@ namespace SoulDefence.Entity
         /// <summary>
         /// 生命值百分比
         /// </summary>
-        public float HealthPercentage => maxHealth > 0f ? currentHealth / maxHealth : 0f;
+        public float HealthPercentage => MaxHealth > 0f ? currentHealth / MaxHealth : 0f;
 
         /// <summary>
         /// 造成伤害
@@ -113,7 +178,7 @@ namespace SoulDefence.Entity
         /// <returns>实际造成的伤害</returns>
         public float TakeDamage(float damage)
         {
-            float actualDamage = Mathf.Max(0f, damage - defense);
+            float actualDamage = Mathf.Max(0f, damage - Defense);
             float oldHealth = currentHealth;
             CurrentHealth -= actualDamage;
             return oldHealth - currentHealth;
@@ -129,6 +194,14 @@ namespace SoulDefence.Entity
             float oldHealth = currentHealth;
             CurrentHealth += healAmount;
             return currentHealth - oldHealth;
+        }
+
+        /// <summary>
+        /// 获取属性数据配置
+        /// </summary>
+        public EntityAttributesData GetAttributesData()
+        {
+            return attributesData;
         }
 
         #endregion

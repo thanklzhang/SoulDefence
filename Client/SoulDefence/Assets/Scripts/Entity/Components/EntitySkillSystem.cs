@@ -32,6 +32,18 @@ namespace SoulDefence.Entity
             this.transform = owner.transform;
             InitializeSkillCooldowns();
         }
+        
+        /// <summary>
+        /// 设置技能数据
+        /// </summary>
+        /// <param name="skillsData">技能数据数组</param>
+        /// <param name="defaultIndex">默认技能索引</param>
+        public void SetSkills(SkillData[] skillsData, int defaultIndex = 0)
+        {
+            this.skills = skillsData;
+            this.defaultSkillIndex = Mathf.Clamp(defaultIndex, 0, skillsData != null ? skillsData.Length - 1 : 0);
+            InitializeSkillCooldowns();
+        }
 
         /// <summary>
         /// 初始化技能冷却
@@ -230,9 +242,6 @@ namespace SoulDefence.Entity
                 if (attackSpeed <= 0)
                     attackSpeed = 1f; // 防止除以零
                 
-                // 冷却时间 = 基础冷却时间 / 攻击速度
-                // 这样攻击速度为1时，冷却时间就是基础冷却时间
-                // 攻击速度为2时，冷却时间就是基础冷却时间的一半
                 skillCooldowns[skill] = 1.0f / attackSpeed;
             }
             else
@@ -270,7 +279,7 @@ namespace SoulDefence.Entity
                 if (attackSpeed <= 0)
                     attackSpeed = 1f; // 防止除以零
                 
-                return skill.cooldown / attackSpeed;
+                return 1.0f / attackSpeed;
             }
             else
             {

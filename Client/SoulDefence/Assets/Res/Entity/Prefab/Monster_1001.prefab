@@ -48,12 +48,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attributes:
-    maxHealth: 100
-    attackPower: 10
-    defense: 5
-    attackSpeed: 2
-    moveSpeed: 5
-    attackRange: 5
+    attributesData: {fileID: 11400000, guid: c7a05f0ee01534cfb8090ac62edf9239, type: 2}
     currentHealth: 0
     currentLevel: 1
     currentExp: 0
@@ -66,7 +61,7 @@ MonoBehaviour:
     - {fileID: 11400000, guid: eee179717b0c0433299545ff0711270c, type: 2}
     defaultSkillIndex: 0
   effectSystem:
-    hitEffectPrefab: {fileID: 3923814919125156988, guid: 04940cbf52d194bbc93c330302d3a0ee, type: 3}
+    effectData: {fileID: 11400000, guid: e510946e611bc44c3806ff90600b6e09, type: 2}
   entityType: 1
   useAI: 1
 --- !u!136 &8293849717494830943

@@ -27,7 +27,7 @@ public class WaveConfig
 /// <summary>
 /// 关卡配置
 /// </summary>
-[CreateAssetMenu(fileName = "NewLevelConfig", menuName = "Game/Level Config")]
+[CreateAssetMenu(fileName = "NewLevelConfig", menuName = "GameConfig/Level Config")]
 public class LevelConfig : ScriptableObject
 {
     [Header("关卡基本信息")]

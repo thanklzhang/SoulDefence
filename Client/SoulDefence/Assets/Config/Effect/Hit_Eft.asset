@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56789012345678901234567890123456, type: 3}
+  m_Name: Hit_Eft
+  m_EditorClassIdentifier: 
+  hitEffectPrefab: {fileID: 3923814919125156988, guid: 04940cbf52d194bbc93c330302d3a0ee, type: 3}
+  hitFlashColor: {r: 1, g: 0, b: 0, a: 1}
+  hitFlashDuration: 0.1
+  deathEffectPrefab: {fileID: 0}
+  deathEffectDuration: 1
+  levelUpEffectPrefab: {fileID: 0}
+  levelUpEffectDuration: 1.5
