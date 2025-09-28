@@ -18,7 +18,7 @@ namespace SoulDefence.Skill
         private Vector3 direction;             // 初始方向
         private float speed;                   // 速度
         private float damage;                  // 伤害
-        private bool canPierce;                // 是否可以穿透
+        private bool canThrough;                // 是否可以穿透
         private bool isHoming;                 // 是否跟踪目标
         private float lifetime;                // 存活时间
         private int hitCount;                  // 已命中目标数量
@@ -48,8 +48,8 @@ namespace SoulDefence.Skill
             // 设置参数
             speed = skillData.projectileSpeed;
             damage = skillData.damage;
-            canPierce = skillData.canPierce;
-            isHoming = skillData.isHoming;
+            canThrough = skillData.canThrough;
+            isHoming = skillData.isFollow;
             lifetime = skillData.projectileLifetime;
             maxHitCount = skillData.targetCount;
             
@@ -65,7 +65,7 @@ namespace SoulDefence.Skill
             // 输出调试信息
             if (showDebugInfo)
             {
-                Debug.Log($"投掷物初始化: 方向={direction}, 速度={speed}, 伤害={damage}, 穿透={canPierce}, 跟踪={isHoming}");
+                Debug.Log($"投掷物初始化: 方向={direction}, 速度={speed}, 伤害={damage}, 穿透={canThrough}, 跟踪={isHoming}");
             }
             
             // 设置销毁时间
@@ -273,7 +273,7 @@ namespace SoulDefence.Skill
                 }
                 
                 // 如果不能穿透或已达到最大命中数，销毁
-                if (!canPierce || hitCount >= maxHitCount)
+                if (!canThrough || hitCount >= maxHitCount)
                 {
                     Destroy(gameObject);
                 }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace SoulDefence.Skill
 {
@@ -34,8 +35,8 @@ namespace SoulDefence.Skill
         [Header("远程特有参数")]
         public float projectileSpeed = 15f;    // 投掷物速度
         public float projectileLifetime = 3f;  // 投掷物存活时间
-        public bool canPierce = false;         // 是否可以穿透
-        public bool isHoming = false;          // 是否跟踪目标
+        public bool canThrough = false;         // 是否可以穿透
+        public bool isFollow = false;          // 是否跟踪目标
         
         [Header("资源")]
         public GameObject projectilePrefab;    // 投掷物预制体(仅远程技能使用)
