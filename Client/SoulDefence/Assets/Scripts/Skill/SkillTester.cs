@@ -120,7 +120,7 @@ namespace SoulDefence.Skill
             }
             
             // 在控制台输出调试信息
-            Debug.Log(info);
+            // Debug.Log(info);
         }
 
         /// <summary>

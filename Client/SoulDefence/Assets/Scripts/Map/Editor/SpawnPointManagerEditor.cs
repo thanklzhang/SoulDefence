@@ -45,8 +45,9 @@ public class SpawnPointManagerEditor : Editor
             EditorGUI.BeginChangeCheck();
 
             // 使用FreeMoveHandle创建可拖拽的控制点
-            var fmh_50_17_638946570576522690 = Quaternion.identity; Vector3 newPosition = Handles.FreeMoveHandle(
+            Vector3 newPosition = Handles.FreeMoveHandle(
                 point.position,
+                Quaternion.identity,
                 handleSize,
                 Vector3.zero,
                 Handles.SphereHandleCap
