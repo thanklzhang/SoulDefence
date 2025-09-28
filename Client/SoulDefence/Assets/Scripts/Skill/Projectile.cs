@@ -9,6 +9,7 @@ namespace SoulDefence.Skill
     /// 投掷物类
     /// 实现远程攻击的投掷物逻辑
     /// </summary>
+    [RequireComponent(typeof(Collider))]
     public class Projectile : MonoBehaviour
     {
         // 投掷物参数
@@ -30,14 +31,9 @@ namespace SoulDefence.Skill
         
         // 已命中的目标列表(防止重复命中)
         private List<GameEntity> hitTargets = new List<GameEntity>();
-
-        // /// <summary>
-        // /// 初始化投掷物
-        // /// </summary>
-        // public void Initialize(GameEntity caster, SkillData skillData, Vector3 direction)
-        // {
-        //     Initialize(caster, skillData, direction, skillData.attackRange);
-        // }
+        
+        // 调试
+        [SerializeField] private bool showDebugInfo = true;
 
         /// <summary>
         /// 初始化投掷物（带攻击范围参数）
@@ -57,14 +53,55 @@ namespace SoulDefence.Skill
             lifetime = skillData.projectileLifetime;
             maxHitCount = skillData.targetCount;
             
+            // 确保有碰撞器
+            SetupCollider();
+            
             // 如果是跟踪投掷物，尝试找到目标
             if (isHoming)
             {
                 FindTarget();
             }
             
+            // 输出调试信息
+            if (showDebugInfo)
+            {
+                Debug.Log($"投掷物初始化: 方向={direction}, 速度={speed}, 伤害={damage}, 穿透={canPierce}, 跟踪={isHoming}");
+            }
+            
             // 设置销毁时间
             Destroy(gameObject, lifetime);
+        }
+        
+        /// <summary>
+        /// 确保有碰撞器
+        /// </summary>
+        private void SetupCollider()
+        {
+            Collider collider = GetComponent<Collider>();
+            if (collider != null)
+            {
+                // 确保碰撞器是触发器
+                collider.isTrigger = true;
+                
+                // 忽略与施放者的碰撞
+                if (caster != null)
+                {
+                    Collider casterCollider = caster.GetComponent<Collider>();
+                    if (casterCollider != null)
+                    {
+                        Physics.IgnoreCollision(collider, casterCollider);
+                    }
+                }
+            }
+            else
+            {
+                Debug.LogError("投掷物缺少碰撞器组件！");
+                
+                // 添加一个基本的球形碰撞器
+                SphereCollider sphereCollider = gameObject.AddComponent<SphereCollider>();
+                sphereCollider.radius = 0.5f;
+                sphereCollider.isTrigger = true;
+            }
         }
 
         void Update()
@@ -78,6 +115,9 @@ namespace SoulDefence.Skill
             
             // 更新移动
             UpdateMovement();
+            
+            // 主动检测碰撞（作为备用方案）
+            // CheckCollisionsManually();
         }
 
         /// <summary>
@@ -102,12 +142,36 @@ namespace SoulDefence.Skill
             
             // 应用移动
             transform.position += moveDirection * speed * Time.deltaTime;
-            // Debug.Log("移动：" + moveDirection.magnitude + " " + speed);
             
             // 更新朝向
             if (moveDirection.magnitude > 0.1f)
             {
                 transform.rotation = Quaternion.LookRotation(moveDirection);
+            }
+        }
+        
+        /// <summary>
+        /// 主动检测碰撞（作为备用方案）
+        /// </summary>
+        private void CheckCollisionsManually()
+        {
+            // 在投掷物前方检测碰撞
+            float checkDistance = speed * Time.deltaTime * 2f; // 检测距离为当前帧移动距离的两倍
+            RaycastHit[] hits = Physics.SphereCastAll(transform.position, 0.5f, direction, checkDistance);
+            
+            foreach (var hit in hits)
+            {
+                // 忽略自身和施放者
+                if (hit.collider.gameObject == gameObject || 
+                    (caster != null && hit.collider.gameObject == caster.gameObject))
+                    continue;
+                
+                GameEntity target = hit.collider.GetComponent<GameEntity>();
+                if (target != null)
+                {
+                    Debug.Log("zxy : co : CheckCollisionsManually 碰撞：" + target);
+                    HandleCollision(target);
+                }
             }
         }
 
@@ -132,7 +196,6 @@ namespace SoulDefence.Skill
                     caster.TeamSystem.IsHostile(target.TeamSystem) &&
                     !hitTargets.Contains(target))
                 {
-                    
                     // 计算距离
                     float distance = Vector3.Distance(transform.position, target.transform.position);
                     
@@ -151,6 +214,11 @@ namespace SoulDefence.Skill
             
             // 设置目标
             targetTransform = closestTarget;
+            
+            if (showDebugInfo && targetTransform != null)
+            {
+                Debug.Log($"投掷物找到目标: {targetTransform.name}");
+            }
         }
 
         /// <summary>
@@ -158,21 +226,51 @@ namespace SoulDefence.Skill
         /// </summary>
         private void OnTriggerEnter(Collider other)
         {
-            Debug.Log("碰撞：" + other.name);
+            Debug.Log("zxy : OnTriggerEnter : other : " + other);
+            if (showDebugInfo)
+            {
+                Debug.Log($"投掷物触发碰撞: {other.gameObject.name}");
+            }
+            
             // 获取目标实体
             GameEntity target = other.GetComponent<GameEntity>();
             
+            // 处理碰撞
+            if (target != null)
+            {
+                HandleCollision(target);
+            }
+        }
+        
+        /// <summary>
+        /// 处理碰撞
+        /// </summary>
+        private void HandleCollision(GameEntity target)
+        {
             // 检查是否是有效目标
             if (target != null && target != caster && target.IsAlive && 
                 caster.TeamSystem.IsHostile(target.TeamSystem) &&
                 !hitTargets.Contains(target))
             {
+                
+                if (showDebugInfo)
+                {
+                    Debug.Log($"投掷物命中目标: {target.gameObject.name}, 伤害: {damage}");
+                }
+                
                 // 添加到已命中列表
                 hitTargets.Add(target);
                 hitCount++;
                 
                 // 应用伤害
-                SkillSystem.Instance.ApplyDamage(caster, target, damage);
+                if (SkillSystem.Instance != null)
+                {
+                    SkillSystem.Instance.ApplyDamage(caster, target, damage);
+                }
+                else
+                {
+                    Debug.LogError("SkillSystem.Instance为空，无法应用伤害");
+                }
                 
                 // 如果不能穿透或已达到最大命中数，销毁
                 if (!canPierce || hitCount >= maxHitCount)
@@ -180,6 +278,23 @@ namespace SoulDefence.Skill
                     Destroy(gameObject);
                 }
             }
+        }
+        
+        /// <summary>
+        /// 绘制调试信息
+        /// </summary>
+        private void OnDrawGizmos()
+        {
+            if (!showDebugInfo)
+                return;
+                
+            // 绘制投掷物路径
+            Gizmos.color = Color.red;
+            Gizmos.DrawRay(transform.position, direction * 2f);
+            
+            // 绘制碰撞检测范围
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(transform.position, 0.5f);
         }
     }
 } 

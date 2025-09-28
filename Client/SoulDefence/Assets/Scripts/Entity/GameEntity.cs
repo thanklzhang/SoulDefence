@@ -11,6 +11,7 @@ namespace SoulDefence.Entity
     /// 游戏实体主类
     /// 整合属性系统、移动系统、队伍系统和AI系统
     /// </summary>
+    [RequireComponent(typeof(Collider))]
     public class GameEntity : MonoBehaviour
     {
         [Header("实体系统")]
@@ -42,11 +43,17 @@ namespace SoulDefence.Entity
             Castle
         }
 
+        private void Awake()
+        {
+            // 确保有碰撞器
+            SetupCollider();
+        }
+        
         // Start is called before the first frame update
         void Start()
         {
             Debug.Log($"GameEntity {name} 开始初始化，类型: {entityType}");
-            InitializeEntity();
+            InitializeEntity(entityType);
         }
 
         // Update is called once per frame
@@ -57,29 +64,59 @@ namespace SoulDefence.Entity
         }
 
         /// <summary>
+        /// 确保有碰撞器
+        /// </summary>
+        private void SetupCollider()
+        {
+            Collider collider = GetComponent<Collider>();
+            if (collider == null)
+            {
+                // 添加一个基本的胶囊碰撞器
+                CapsuleCollider capsuleCollider = gameObject.AddComponent<CapsuleCollider>();
+                capsuleCollider.height = 2f;
+                capsuleCollider.radius = 0.5f;
+                capsuleCollider.center = new Vector3(0, 1f, 0);
+                
+                // 设置为触发器
+                capsuleCollider.isTrigger = true;
+                
+                Debug.LogWarning($"实体 {gameObject.name} 缺少碰撞器，已自动添加胶囊碰撞器");
+            }
+            else if (!collider.isTrigger)
+            {
+                // 确保是触发器
+                collider.isTrigger = true;
+                Debug.Log($"实体 {gameObject.name} 的碰撞器已设置为触发器");
+            }
+        }
+
+        /// <summary>
         /// 初始化实体
         /// </summary>
-        private void InitializeEntity()
+        public void InitializeEntity(EntityType entityType = EntityType.Player)
         {
-            // 初始化属性系统
+            this.entityType = entityType;
+            
+            // 初始化属性
             attributes.Initialize();
             
             // 初始化移动系统
             movement.Initialize(transform, attributes);
-
-            // 根据实体类型设置队伍
+            
+            // 设置队伍
             SetTeamByEntityType();
-
-            // 根据实体类型设置默认AI状态
-            SetDefaultAIState();
-
-            // 初始化AI系统
+            
+            // 初始化AI
             InitializeAI();
+            
+            // 设置默认AI状态
+            SetDefaultAIState();
             
             // 初始化技能冷却
             InitializeSkillCooldowns();
             
-            Debug.Log($"GameEntity {name} 初始化完成，类型: {entityType}, 队伍: {teamSystem.Team}, AI启用: {useAI}");
+            // 确保有碰撞器
+            SetupCollider();
         }
 
         /// <summary>
