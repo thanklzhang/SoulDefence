@@ -523,6 +523,10 @@ PrefabInstance:
       propertyPath: useAI
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8985074666309259786, guid: 14e637e49eaeae942a71750d0e6249f0, type: 3}
+      propertyPath: attributes.moveSpeed
+      value: 20
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

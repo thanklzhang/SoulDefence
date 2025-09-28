@@ -28,7 +28,7 @@ namespace SoulDefence.Entity
             // aiEnabled = false;
             
             // 设置检测范围
-            detectionRange = 15f;
+            // detectionRange = 15f;
         }
 
         /// <summary>

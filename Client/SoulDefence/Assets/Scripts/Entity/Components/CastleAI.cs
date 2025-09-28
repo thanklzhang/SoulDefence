@@ -27,8 +27,8 @@ namespace SoulDefence.Entity
             // aiEnabled = true;
             
             // 设置检测范围和巡逻范围
-            detectionRange = 15f;
-            patrolRange = 20f;  // 城堡的检测范围较大
+            // detectionRange = 15f;
+            patrolRange = 6.0f;  // 城堡的检测范围较大
         }
 
         /// <summary>

@@ -13,9 +13,9 @@ namespace SoulDefence.Entity
     {
         [Header("AI基础设置")]
         [SerializeField] protected bool aiEnabled = true;           // AI是否启用
-        [SerializeField] protected float detectionRange = 10f;       // 检测范围
-        [SerializeField] protected float patrolRange = 15f;          // 巡逻范围
-        [SerializeField] protected float decisionInterval = 0.5f;    // AI决策间隔（秒）
+        //[SerializeField] protected float detectionRange = 10f;       // 检测范围
+        [SerializeField] protected float patrolRange = 5f;          // 巡逻范围
+        [SerializeField] protected float decisionInterval = 0.15f;    // AI决策间隔（秒）
 
         // 组件引用
         protected Transform transform;
@@ -225,23 +225,23 @@ namespace SoulDefence.Entity
             set => aiEnabled = value;
         }
 
-        /// <summary>
-        /// 检测范围
-        /// </summary>
-        public float DetectionRange
-        {
-            get => detectionRange;
-            set => detectionRange = Mathf.Max(0f, value);
-        }
-
-        /// <summary>
-        /// 巡逻范围
-        /// </summary>
-        public float PatrolRange
-        {
-            get => patrolRange;
-            set => patrolRange = Mathf.Max(0f, value);
-        }
+        // /// <summary>
+        // /// 检测范围
+        // /// </summary>
+        // public float DetectionRange
+        // {
+        //     get => detectionRange;
+        //     set => detectionRange = Mathf.Max(0f, value);
+        // }
+        //
+        // /// <summary>
+        // /// 巡逻范围
+        // /// </summary>
+        // public float PatrolRange
+        // {
+        //     get => patrolRange;
+        //     set => patrolRange = Mathf.Max(0f, value);
+        // }
 
         #endregion
     }
