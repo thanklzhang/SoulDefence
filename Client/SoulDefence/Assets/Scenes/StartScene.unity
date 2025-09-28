@@ -454,11 +454,33 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!1 &1633337376 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 963329979591560113, guid: 14e637e49eaeae942a71750d0e6249f0, type: 3}
+  m_PrefabInstance: {fileID: 1938884201}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1639226081 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 963329979591560114, guid: 14e637e49eaeae942a71750d0e6249f0, type: 3}
   m_PrefabInstance: {fileID: 1938884201}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1639226084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1633337376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2f9a3bc517224a0ca119e0348e28668, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  testEntity: {fileID: 0}
+  mainCamera: {fileID: 0}
+  skillKey: 32
+  skillKeys: 310000003200000033000000
+  showDebugInfo: 1
 --- !u!1001 &1938884201
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -534,7 +556,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 963329979591560113, guid: 14e637e49eaeae942a71750d0e6249f0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1639226084}
   m_SourcePrefab: {fileID: 100100000, guid: 14e637e49eaeae942a71750d0e6249f0, type: 3}
 --- !u!1001 &1978251206
 PrefabInstance:

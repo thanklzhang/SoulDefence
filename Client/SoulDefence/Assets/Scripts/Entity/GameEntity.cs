@@ -235,6 +235,19 @@ namespace SoulDefence.Entity
         }
 
         /// <summary>
+        /// 使用默认技能（使用实体朝向）
+        /// </summary>
+        /// <returns>是否成功使用技能</returns>
+        public bool UseDefaultSkill()
+        {
+            if (skills == null || skills.Length == 0 || defaultSkillIndex < 0 || defaultSkillIndex >= skills.Length)
+                return false;
+                
+            SkillData skill = skills[defaultSkillIndex];
+            return UseSkill(skill);
+        }
+
+        /// <summary>
         /// 使用指定索引的技能
         /// </summary>
         /// <param name="skillIndex">技能索引</param>
@@ -247,6 +260,20 @@ namespace SoulDefence.Entity
                 
             SkillData skill = skills[skillIndex];
             return UseSkill(skill, targetPosition);
+        }
+
+        /// <summary>
+        /// 使用指定索引的技能（使用实体朝向）
+        /// </summary>
+        /// <param name="skillIndex">技能索引</param>
+        /// <returns>是否成功使用技能</returns>
+        public bool UseSkill(int skillIndex)
+        {
+            if (skills == null || skillIndex < 0 || skillIndex >= skills.Length)
+                return false;
+                
+            SkillData skill = skills[skillIndex];
+            return UseSkill(skill);
         }
 
         /// <summary>
@@ -274,6 +301,38 @@ namespace SoulDefence.Entity
             {
                 direction = transform.forward;
             }
+            
+            // 使用技能
+            bool success = SkillSystem.Instance.UseSkill(this, skill, targetPosition, direction);
+            
+            // 如果成功使用，设置冷却
+            if (success)
+            {
+                SetSkillCooldown(skill);
+            }
+            
+            return success;
+        }
+
+        /// <summary>
+        /// 使用指定技能（使用实体朝向）
+        /// </summary>
+        /// <param name="skill">技能数据</param>
+        /// <returns>是否成功使用技能</returns>
+        public bool UseSkill(SkillData skill)
+        {
+            if (skill == null || !IsAlive)
+                return false;
+                
+            // 检查冷却
+            if (IsSkillOnCooldown(skill))
+                return false;
+                
+            // 使用实体当前朝向
+            Vector3 direction = transform.forward;
+            
+            // 计算目标位置（在实体前方一定距离）
+            Vector3 targetPosition = transform.position + direction * 10f;
             
             // 使用技能
             bool success = SkillSystem.Instance.UseSkill(this, skill, targetPosition, direction);

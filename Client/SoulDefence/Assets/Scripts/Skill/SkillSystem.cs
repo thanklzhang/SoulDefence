@@ -92,26 +92,17 @@ namespace SoulDefence.Skill
             
             // 设置投掷物参数
             Projectile projectile = projectileObj.GetComponent<Projectile>();
-            if (projectile != null)
+            if (null == projectile)
             {
-                // 获取实体的攻击距离
-                float attackRange = GetEntityAttackRange(caster, skill);
-                
-                // 初始化投掷物，传递实体的攻击距离
-                projectile.Initialize(caster, skill, direction, attackRange);
+                projectileObj.AddComponent<Projectile>();
+              
             }
-            else
-            {
-                // 如果没有Projectile组件，添加一个基本的移动行为
-                Rigidbody rb = projectileObj.GetComponent<Rigidbody>();
-                if (rb != null)
-                {
-                    rb.velocity = direction * skill.projectileSpeed;
-                }
+            
+            // 获取实体的攻击距离
+            float attackRange = GetEntityAttackRange(caster, skill);
                 
-                // 设置销毁时间
-                Destroy(projectileObj, skill.projectileLifetime);
-            }
+            // 初始化投掷物，传递实体的攻击距离
+            projectile.Initialize(caster, skill, direction, attackRange);
             
             return true;
         }

@@ -102,6 +102,7 @@ namespace SoulDefence.Skill
             
             // 应用移动
             transform.position += moveDirection * speed * Time.deltaTime;
+            // Debug.Log("移动：" + moveDirection.magnitude + " " + speed);
             
             // 更新朝向
             if (moveDirection.magnitude > 0.1f)
@@ -131,6 +132,7 @@ namespace SoulDefence.Skill
                     caster.TeamSystem.IsHostile(target.TeamSystem) &&
                     !hitTargets.Contains(target))
                 {
+                    
                     // 计算距离
                     float distance = Vector3.Distance(transform.position, target.transform.position);
                     
@@ -156,6 +158,7 @@ namespace SoulDefence.Skill
         /// </summary>
         private void OnTriggerEnter(Collider other)
         {
+            Debug.Log("碰撞：" + other.name);
             // 获取目标实体
             GameEntity target = other.GetComponent<GameEntity>();
             

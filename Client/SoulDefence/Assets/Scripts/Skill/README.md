@@ -46,24 +46,34 @@
 ### 使用技能
 
 ```csharp
-// 使用默认技能
+// 使用默认技能（使用实体当前朝向）
+entity.UseDefaultSkill();
+
+// 使用指定索引的技能（使用实体当前朝向）
+entity.UseSkill(skillIndex);
+
+// 使用指定技能（使用实体当前朝向）
+entity.UseSkill(skillData);
+
+// 如果需要指定目标位置（不常用）
 entity.UseDefaultSkill(targetPosition);
-
-// 使用指定索引的技能
 entity.UseSkill(skillIndex, targetPosition);
-
-// 使用指定技能
 entity.UseSkill(skillData, targetPosition);
 ```
 
 ## 特别说明
 
-1. **攻击距离**：技能的攻击范围使用实体属性中的攻击距离（EntityAttributes.AttackRange），而不是技能配置中的attackRange。技能配置中的attackRange仅作为备用值。
+1. **技能释放方向**：技能默认使用实体当前朝向作为释放方向，投掷物会沿着实体的forward方向发射。
 
-2. **技能冷却**：系统会自动管理技能冷却，可以通过`IsSkillOnCooldown`和`GetSkillCooldown`方法查询冷却状态。
+2. **攻击距离**：技能的攻击范围使用实体属性中的攻击距离（EntityAttributes.AttackRange），而不是技能配置中的attackRange。
 
-3. **伤害计算**：伤害计算考虑了攻击者的攻击力和目标的防御力，使用公式：`基础伤害 * (1 + 攻击力/100) - 防御/2`。
+3. **技能冷却**：系统会自动管理技能冷却，可以通过`IsSkillOnCooldown`和`GetSkillCooldown`方法查询冷却状态。
+
+4. **伤害计算**：伤害计算考虑了攻击者的攻击力和目标的防御力，使用公式：`基础伤害 * (1 + 攻击力/100) - 防御/2`。
 
 ## 示例
 
-可以参考`SkillTester`脚本了解如何在游戏中使用技能系统。该脚本提供了通过键盘和鼠标输入使用技能的示例。 
+可以参考`SkillTester`脚本了解如何在游戏中使用技能系统。该脚本提供了通过键盘输入使用技能的示例：
+
+- 空格键：使用默认技能
+- 数字键1-3：使用对应索引的技能 
