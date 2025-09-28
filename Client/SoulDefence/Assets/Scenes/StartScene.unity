@@ -251,10 +251,6 @@ PrefabInstance:
       value: map_0001
       objectReference: {fileID: 0}
     - target: {fileID: 8983437969570439147, guid: 5447d76914569574a9c49f3ec2dcd4dd, type: 3}
-      propertyPath: m_RootOrder
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 8983437969570439147, guid: 5447d76914569574a9c49f3ec2dcd4dd, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}

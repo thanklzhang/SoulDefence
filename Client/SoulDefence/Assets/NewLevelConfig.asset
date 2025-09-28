@@ -15,26 +15,12 @@ MonoBehaviour:
   levelId: 1
   levelName: "\u5173\u53611"
   levelDescription: 
-  waveCount: 3
+  waveCount: 1
   waves:
   - waveNumber: 1
     waveName: "\u7B2C1\u6CE2"
-    monsterCount: 5
+    monsterCount: 1
     monsterType: 
     waveDelay: 1
     spawnInterval: 1
-    description: 
-  - waveNumber: 2
-    waveName: "\u7B2C2\u6CE2"
-    monsterCount: 6
-    monsterType: SmallEnemy
-    waveDelay: 0
-    spawnInterval: 2
-    description: 
-  - waveNumber: 3
-    waveName: "\u7B2C3\u6CE2"
-    monsterCount: 7
-    monsterType: SmallEnemy
-    waveDelay: 0
-    spawnInterval: 7
     description: 

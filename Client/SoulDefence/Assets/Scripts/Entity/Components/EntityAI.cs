@@ -15,7 +15,7 @@ namespace SoulDefence.Entity
         [SerializeField] protected bool aiEnabled = true;           // AI是否启用
         //[SerializeField] protected float detectionRange = 10f;       // 检测范围
         [SerializeField] protected float patrolRange = 5f;          // 巡逻范围
-        [SerializeField] protected float decisionInterval = 0.15f;    // AI决策间隔（秒）
+        [SerializeField] protected float decisionInterval = 0.40f;    // AI决策间隔（秒）
 
         // 组件引用
         protected Transform transform;

@@ -12,7 +12,7 @@ namespace SoulDefence.Entity
     public class EnemyAI : EntityAI
     {
         [Header("敌人AI设置")]
-        [SerializeField] private float targetUpdateInterval = 1.0f; // 目标更新间隔
+        [SerializeField] private float targetUpdateInterval = 0.33f; // 目标更新间隔
 
         private Transform castleTransform;                          // 城堡位置
         private Transform playerTransform;                          // 玩家位置

@@ -152,7 +152,7 @@ public class DebugLevelTester : MonoBehaviour
         // 设置自动销毁
         if (monsterLifetime > 0)
         {
-            StartCoroutine(DestroyMonsterAfterTime(monster, monsterLifetime));
+            //StartCoroutine(DestroyMonsterAfterTime(monster, monsterLifetime));
         }
     }
     
