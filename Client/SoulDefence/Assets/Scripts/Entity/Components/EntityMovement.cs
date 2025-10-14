@@ -73,7 +73,7 @@ namespace SoulDefence.Entity
                 // 如果位置被边界限制，输出日志
                 if (boundedPosition != newPosition)
                 {
-                    Debug.Log($"EntityMovement: 位置被边界限制，原位置={newPosition}, 新位置={boundedPosition}");
+                    // Debug.Log($"EntityMovement: 位置被边界限制，原位置={newPosition}, 新位置={boundedPosition}");
                 }
                 
                 // 应用移动
