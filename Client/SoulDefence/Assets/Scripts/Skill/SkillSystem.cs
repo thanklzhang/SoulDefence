@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using SoulDefence.Entity;
+using SoulDefence.Buff;
 
 namespace SoulDefence.Skill
 {
@@ -100,10 +101,19 @@ namespace SoulDefence.Skill
                 }
             }
             
-            // 对每个目标应用伤害
+            // 对每个目标应用伤害和Buff
             foreach (var target in targets)
             {
                 ApplyDamage(caster, target, skill.damage);
+                
+                // 应用技能的Buff效果
+                ApplySkillBuffs(caster, target, skill);
+            }
+            
+            // 对自己应用Buff
+            if (skill.buffToSelf != null)
+            {
+                caster.AddBuff(skill.buffToSelf, caster);
             }
             
             return targets.Count > 0;
@@ -274,6 +284,26 @@ namespace SoulDefence.Skill
             
             // 应用伤害
             target.TakeDamage(actualDamage);
+        }
+        
+        /// <summary>
+        /// 应用技能的Buff效果
+        /// </summary>
+        private void ApplySkillBuffs(GameEntity caster, GameEntity target, SkillData skill)
+        {
+            if (skill == null || !skill.HasBuffEffect)
+                return;
+
+            // 对目标应用Buff
+            if (skill.buffToTarget != null && target != null && target.IsAlive)
+            {
+                target.AddBuff(skill.buffToTarget, caster);
+                
+                if (showDebugInfo)
+                {
+                    Debug.Log($"[技能Buff] {caster.name} 的技能 {skill.skillName} 给 {target.name} 添加Buff: {skill.buffToTarget.buffName}");
+                }
+            }
         }
 
         /// <summary>

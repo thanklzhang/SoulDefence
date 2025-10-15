@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Serialization;
+using SoulDefence.Buff;
 
 namespace SoulDefence.Skill
 {
@@ -43,6 +44,12 @@ namespace SoulDefence.Skill
         [Header("被动技能配置")]
         public PassiveSkillData passiveSkill = new PassiveSkillData();  // 被动技能
         
+        [Header("Buff配置")]
+        [Tooltip("技能释放时对目标添加的Buff")]
+        public BuffData buffToTarget;           // 对目标添加的Buff
+        [Tooltip("技能释放时对自己添加的Buff")]
+        public BuffData buffToSelf;             // 对自己添加的Buff
+        
         [Header("资源")]
         public GameObject projectilePrefab;    // 投掷物预制体(仅远程技能使用)
         
@@ -55,5 +62,10 @@ namespace SoulDefence.Skill
         /// 是否是纯被动技能（没有主动部分）
         /// </summary>
         public bool IsPurePassive => !hasActiveSkill && HasPassiveSkill;
+        
+        /// <summary>
+        /// 是否有Buff效果
+        /// </summary>
+        public bool HasBuffEffect => buffToTarget != null || buffToSelf != null;
     }
 } 

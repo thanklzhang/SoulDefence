@@ -1,4 +1,5 @@
 using UnityEngine;
+using SoulDefence.Core;
 
 namespace SoulDefence.Skill
 {
@@ -35,8 +36,7 @@ namespace SoulDefence.Skill
         [Tooltip("属性加成：增加的属性值")]
         public float attributeBonusValue = 0f;          // 属性加成值
         
-        [Tooltip("属性加成类型：0=攻击力, 1=防御力, 2=攻击速度, 3=移动速度")]
-        public int attributeType = 0;                   // 属性类型
+        public AttributeType attributeType = AttributeType.AttackPower;  // 属性类型
         
         [Tooltip("伤害倍率：1.0=100%, 1.5=150%")]
         public float damageMultiplier = 1.5f;           // 伤害倍率

@@ -6,6 +6,7 @@ using System.Linq;
 using SoulDefence.Skill;
 using SoulDefence.Equipment;
 using SoulDefence.Item;
+using SoulDefence.Buff;
 // 添加组件引用
 using SoulDefence.Entity;
 
@@ -26,6 +27,7 @@ namespace SoulDefence.Entity
         [SerializeField] private EntityEffectSystem effectSystem = new EntityEffectSystem();
         [SerializeField] private EquipmentSystem equipmentSystem = new EquipmentSystem();
         [SerializeField] private HealthPotionSystem healthPotionSystem = new HealthPotionSystem();
+        [SerializeField] private BuffSystem buffSystem = new BuffSystem();
         
         [Header("AI系统")]
         [SerializeField] private EntityType entityType = EntityType.Player;
@@ -63,6 +65,7 @@ namespace SoulDefence.Entity
             UpdateEntity();
             skillSystem.UpdateCooldowns();
             healthPotionSystem.Update(Time.deltaTime);
+            buffSystem.Update(Time.deltaTime);
         }
 
         /// <summary>
@@ -114,6 +117,9 @@ namespace SoulDefence.Entity
             
             // 初始化血瓶系统
             healthPotionSystem.Initialize(this);
+            
+            // 初始化Buff系统
+            buffSystem.Initialize(this);
             
             // 根据实体类型设置队伍
             SetTeamByEntityType();
@@ -337,6 +343,11 @@ namespace SoulDefence.Entity
         /// 获取血瓶系统
         /// </summary>
         public HealthPotionSystem HealthPotionSystem => healthPotionSystem;
+        
+        /// <summary>
+        /// 获取Buff系统
+        /// </summary>
+        public BuffSystem BuffSystem => buffSystem;
 
         /// <summary>
         /// 获取AI控制器
@@ -477,6 +488,22 @@ namespace SoulDefence.Entity
         public bool UseHealthPotion()
         {
             return healthPotionSystem.UsePotion();
+        }
+        
+        /// <summary>
+        /// 添加Buff
+        /// </summary>
+        public BuffInstance AddBuff(BuffData buffData, GameEntity caster = null)
+        {
+            return buffSystem.AddBuff(buffData, caster);
+        }
+        
+        /// <summary>
+        /// 移除Buff
+        /// </summary>
+        public bool RemoveBuff(BuffData buffData)
+        {
+            return buffSystem.RemoveBuff(buffData);
         }
         
         #endregion

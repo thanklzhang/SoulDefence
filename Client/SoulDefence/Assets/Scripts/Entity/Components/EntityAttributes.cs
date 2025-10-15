@@ -98,9 +98,70 @@ namespace SoulDefence.Entity
                 }
             }
             
-            // TODO: 添加其他属性加成（Buff、技能等）
+            // 添加Buff属性加成
+            if (owner != null && owner.BuffSystem != null)
+            {
+                var buffModifiers = owner.BuffSystem.GetAttributeModifiers();
+                ApplyAttributeModifiers(buffModifiers);
+            }
+            
+            // 添加被动技能属性加成
+            if (owner != null && owner.SkillSystem != null && owner.SkillSystem.PassiveSkillSystem != null)
+            {
+                var passiveModifiers = owner.SkillSystem.PassiveSkillSystem.GetAttributeBonuses();
+                ApplyAttributeModifiers(passiveModifiers);
+            }
+            
+            // TODO: 添加其他属性加成
             
             Debug.Log($"属性已重新计算 - 最大生命: {cachedTotalAttributes.maxHealth}, 攻击力: {cachedTotalAttributes.attackPower}");
+        }
+        
+        /// <summary>
+        /// 应用属性修改器
+        /// </summary>
+        private void ApplyAttributeModifiers(Dictionary<SoulDefence.Core.AttributeType, float> modifiers)
+        {
+            if (modifiers == null)
+                return;
+
+            foreach (var kvp in modifiers)
+            {
+                SoulDefence.Core.AttributeType attrType = kvp.Key;
+                float value = kvp.Value;
+                
+                // 应用属性修改
+                switch (attrType)
+                {
+                    case SoulDefence.Core.AttributeType.AttackPower:
+                        cachedTotalAttributes.attackPower += value;
+                        break;
+                    case SoulDefence.Core.AttributeType.Defense:
+                        cachedTotalAttributes.defense += value;
+                        break;
+                    case SoulDefence.Core.AttributeType.AttackSpeed:
+                        cachedTotalAttributes.attackSpeed += value;
+                        break;
+                    case SoulDefence.Core.AttributeType.MoveSpeed:
+                        cachedTotalAttributes.moveSpeed += value;
+                        break;
+                    case SoulDefence.Core.AttributeType.MaxHealth:
+                        cachedTotalAttributes.maxHealth += value;
+                        break;
+                    case SoulDefence.Core.AttributeType.AttackRange:
+                        cachedTotalAttributes.attackRange += value;
+                        break;
+                    case SoulDefence.Core.AttributeType.CriticalRate:
+                        cachedTotalAttributes.criticalRate += value;
+                        break;
+                    case SoulDefence.Core.AttributeType.CriticalDamage:
+                        cachedTotalAttributes.criticalDamage += value;
+                        break;
+                    case SoulDefence.Core.AttributeType.DamageReduction:
+                        cachedTotalAttributes.damageReduction += value;
+                        break;
+                }
+            }
         }
         
         /// <summary>

@@ -1,5 +1,6 @@
 using UnityEngine;
 using SoulDefence.Entity;
+using SoulDefence.Core;
 
 namespace SoulDefence.Skill
 {

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using SoulDefence.Entity;
+using SoulDefence.Core;
 
 namespace SoulDefence.Skill
 {
@@ -135,16 +136,16 @@ namespace SoulDefence.Skill
         /// <summary>
         /// 获取总属性加成
         /// </summary>
-        public Dictionary<int, float> GetAttributeBonuses()
+        public Dictionary<AttributeType, float> GetAttributeBonuses()
         {
-            var bonuses = new Dictionary<int, float>();
+            var bonuses = new Dictionary<AttributeType, float>();
 
             foreach (var passive in passiveSkills)
             {
                 if (passive.Data.effectType == PassiveEffectType.AttributeBonus &&
                     passive.Data.IsPermanentEffect)
                 {
-                    int attrType = passive.Data.attributeType;
+                    AttributeType attrType = passive.Data.attributeType;
                     float bonus = passive.GetAttributeBonus();
                     
                     if (bonuses.ContainsKey(attrType))

@@ -29,5 +29,22 @@ namespace SoulDefence.Core
         Archer = 2,     // 弓手
         Wizard = 3      // 巫师
     }
+
+    /// <summary>
+    /// 实体属性类型（通用）
+    /// 用于属性加成、Buff、被动技能等
+    /// </summary>
+    public enum AttributeType
+    {
+        AttackPower = 0,        // 攻击力
+        Defense = 1,            // 防御力
+        AttackSpeed = 2,        // 攻击速度
+        MoveSpeed = 3,          // 移动速度
+        MaxHealth = 4,          // 最大生命值
+        AttackRange = 5,        // 攻击范围
+        CriticalRate = 6,       // 暴击率
+        CriticalDamage = 7,     // 暴击伤害
+        DamageReduction = 8,    // 伤害减免
+    }
 }
 

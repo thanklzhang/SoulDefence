@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using SoulDefence.Entity;
+using SoulDefence.Buff;
 
 namespace SoulDefence.Skill
 {
@@ -270,6 +271,20 @@ namespace SoulDefence.Skill
                 else
                 {
                     Debug.LogError("SkillSystem.Instance为空，无法应用伤害");
+                }
+                
+                // 应用Buff效果
+                if (skillData != null && skillData.HasBuffEffect)
+                {
+                    if (skillData.buffToTarget != null)
+                    {
+                        target.AddBuff(skillData.buffToTarget, caster);
+                        
+                        if (showDebugInfo)
+                        {
+                            Debug.Log($"[投掷物Buff] 给 {target.name} 添加Buff: {skillData.buffToTarget.buffName}");
+                        }
+                    }
                 }
                 
                 // 如果不能穿透或已达到最大命中数，销毁
