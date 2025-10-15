@@ -14,6 +14,7 @@ namespace SoulDefence.Skill
 
     /// <summary>
     /// 技能数据，使用ScriptableObject存储技能配置
+    /// 支持主动技能和被动技能
     /// </summary>
     [CreateAssetMenu(fileName = "New Skill", menuName = "GameConfig/Skill")]
     public class SkillData : ScriptableObject
@@ -24,10 +25,10 @@ namespace SoulDefence.Skill
         public SkillType skillType;            // 技能类型
         public bool isBasicAttack = false;     // 是否为普通攻击
         
-        [Header("通用参数")]
+        [Header("主动技能参数")]
+        public bool hasActiveSkill = true;     // 是否有主动技能
         public float damage;                   // 伤害值
         public float cooldown;                 // 冷却时间(秒)
-        // public float attackRange;              // 攻击范围
         public int targetCount = 1;            // 目标数量
         
         [Header("近战特有参数")]
@@ -39,7 +40,20 @@ namespace SoulDefence.Skill
         public bool canThrough = false;         // 是否可以穿透
         public bool isFollow = false;          // 是否跟踪目标
         
+        [Header("被动技能配置")]
+        public PassiveSkillData passiveSkill = new PassiveSkillData();  // 被动技能
+        
         [Header("资源")]
         public GameObject projectilePrefab;    // 投掷物预制体(仅远程技能使用)
+        
+        /// <summary>
+        /// 是否有被动技能
+        /// </summary>
+        public bool HasPassiveSkill => passiveSkill != null && passiveSkill.enabled;
+        
+        /// <summary>
+        /// 是否是纯被动技能（没有主动部分）
+        /// </summary>
+        public bool IsPurePassive => !hasActiveSkill && HasPassiveSkill;
     }
 } 

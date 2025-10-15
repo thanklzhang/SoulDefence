@@ -19,6 +19,9 @@ namespace SoulDefence.Entity
         // 技能冷却时间
         private Dictionary<SkillData, float> skillCooldowns = new Dictionary<SkillData, float>();
         
+        // 被动技能系统
+        private PassiveSkillSystem passiveSkillSystem = new PassiveSkillSystem();
+        
         // 实体引用
         private GameEntity owner;
         private Transform transform;
@@ -31,6 +34,12 @@ namespace SoulDefence.Entity
             this.owner = owner;
             this.transform = owner.transform;
             InitializeSkillCooldowns();
+            
+            // 初始化被动技能系统
+            if (passiveSkillSystem != null)
+            {
+                passiveSkillSystem.Initialize(owner, skills);
+            }
         }
         
         /// <summary>
@@ -81,6 +90,12 @@ namespace SoulDefence.Entity
                         skillCooldowns[skill] = 0;
                     }
                 }
+            }
+            
+            // 更新被动技能系统
+            if (passiveSkillSystem != null)
+            {
+                passiveSkillSystem.Update(Time.deltaTime);
             }
         }
         
@@ -169,10 +184,16 @@ namespace SoulDefence.Entity
             // 使用技能
             bool success = SkillSystem.Instance.UseSkill(owner, skill, targetPosition, direction);
             
-            // 如果成功使用，设置冷却
+            // 如果成功使用，设置冷却并触发被动技能
             if (success)
             {
                 SetSkillCooldown(skill);
+                
+                // 触发攻击相关被动技能
+                if (passiveSkillSystem != null)
+                {
+                    passiveSkillSystem.OnAttack();
+                }
             }
             
             return success;
@@ -201,10 +222,16 @@ namespace SoulDefence.Entity
             // 使用技能
             bool success = SkillSystem.Instance.UseSkill(owner, skill, targetPosition, direction);
             
-            // 如果成功使用，设置冷却
+            // 如果成功使用，设置冷却并触发被动技能
             if (success)
             {
                 SetSkillCooldown(skill);
+                
+                // 触发攻击相关被动技能
+                if (passiveSkillSystem != null)
+                {
+                    passiveSkillSystem.OnAttack();
+                }
             }
             
             return success;
@@ -316,6 +343,49 @@ namespace SoulDefence.Entity
             {
                 defaultSkillIndex = index;
             }
+        }
+        
+        /// <summary>
+        /// 获取被动技能系统
+        /// </summary>
+        public PassiveSkillSystem PassiveSkillSystem => passiveSkillSystem;
+        
+        /// <summary>
+        /// 触发受击事件（供外部调用）
+        /// </summary>
+        public void OnHit()
+        {
+            passiveSkillSystem?.OnHit();
+        }
+        
+        /// <summary>
+        /// 触发击杀事件（供外部调用）
+        /// </summary>
+        public void OnKill()
+        {
+            passiveSkillSystem?.OnKill();
+        }
+        
+        /// <summary>
+        /// 获取攻击伤害修正（被动技能）
+        /// </summary>
+        public float GetPassiveDamageModifier(float baseDamage)
+        {
+            if (passiveSkillSystem == null)
+                return 0f;
+            
+            return passiveSkillSystem.GetDamageModifier(baseDamage, PassiveTriggerType.OnAttack);
+        }
+        
+        /// <summary>
+        /// 获取受击伤害减免（被动技能）
+        /// </summary>
+        public float GetPassiveDamageReduction(float incomingDamage)
+        {
+            if (passiveSkillSystem == null)
+                return 0f;
+            
+            return passiveSkillSystem.GetDamageReductionModifier(incomingDamage);
         }
     }
 } 
