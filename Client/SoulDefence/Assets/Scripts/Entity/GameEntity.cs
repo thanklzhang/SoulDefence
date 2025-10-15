@@ -4,8 +4,10 @@ using UnityEngine;
 using System;
 using System.Linq;
 using SoulDefence.Skill;
+using SoulDefence.Equipment;
 // 添加组件引用
 using SoulDefence.Entity;
+using SoulDefence.Equipment;
 
 namespace SoulDefence.Entity
 {
@@ -22,6 +24,7 @@ namespace SoulDefence.Entity
         [SerializeField] private TeamSystem teamSystem = new TeamSystem();
         [SerializeField] private EntitySkillSystem skillSystem = new EntitySkillSystem();
         [SerializeField] private EntityEffectSystem effectSystem = new EntityEffectSystem();
+        [SerializeField] private EquipmentSystem equipmentSystem = new EquipmentSystem();
         
         [Header("AI系统")]
         [SerializeField] private EntityType entityType = EntityType.Player;
@@ -92,8 +95,8 @@ namespace SoulDefence.Entity
         /// </summary>
         private void InitializeEntity()
         {
-            // 初始化属性系统
-            attributes.Initialize();
+            // 初始化属性系统（传入自身引用，以便访问装备系统）
+            attributes.Initialize(this);
             
             // 初始化移动系统
             movement.Initialize(transform, attributes);
@@ -103,6 +106,9 @@ namespace SoulDefence.Entity
             
             // 初始化特效系统
             effectSystem.Initialize(this);
+            
+            // 初始化装备系统
+            equipmentSystem.Initialize(this);
             
             // 根据实体类型设置队伍
             SetTeamByEntityType();
@@ -316,6 +322,11 @@ namespace SoulDefence.Entity
         /// 获取技能系统
         /// </summary>
         public EntitySkillSystem SkillSystem => skillSystem;
+        
+        /// <summary>
+        /// 获取装备系统
+        /// </summary>
+        public EquipmentSystem EquipmentSystem => equipmentSystem;
 
         /// <summary>
         /// 获取AI控制器
@@ -333,7 +344,7 @@ namespace SoulDefence.Entity
         /// <param name="speed">移动速度</param>
         public void SetMoveSpeed(float speed)
         {
-            attributes.MoveSpeed = speed;
+            //attributes.MoveSpeed = speed;
         }
 
         /// <summary>

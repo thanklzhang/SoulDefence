@@ -7,132 +7,159 @@ namespace SoulDefence.Entity
     /// <summary>
     /// 实体属性系统
     /// 管理实体的所有属性数据
+    /// 属性 = 基础配置属性 + 装备属性 + 其他加成属性
     /// </summary>
     [System.Serializable]
     public class EntityAttributes
     {
-        [Header("属性配置")]
-        [SerializeField] private EntityAttributesData attributesData;  // 属性数据配置
+        [Header("基础属性配置")]
+        [SerializeField] private EntityAttributesData baseAttributesData;  // 基础属性数据配置
+        
+        [Header("等级配置")]
+        [SerializeField] private EntityLevelData levelData;                // 等级数据配置
 
-        [Header("当前状态属性")]
+        [Header("当前状态")]
         [SerializeField] private float currentHealth;           // 当前生命值
         [SerializeField] private int currentLevel = 1;          // 当前等级
         [SerializeField] private float currentExp = 0f;         // 当前经验值
 
+        // 计算后的总属性（缓存）
+        private EntityAttributesData cachedTotalAttributes;
+        
+        // 装备系统引用
+        private GameEntity owner;
+
         /// <summary>
         /// 初始化属性
         /// </summary>
-        public void Initialize()
+        public void Initialize(GameEntity entity = null)
         {
-            if (attributesData != null)
+            owner = entity;
+            
+            if (levelData != null)
             {
-                currentHealth = attributesData.maxHealth;
-                currentLevel = attributesData.baseLevel;
+                currentLevel = levelData.baseLevel;
                 currentExp = 0f;
             }
             else
             {
-                Debug.LogError("EntityAttributes: attributesData is null!");
-                currentHealth = 100f; // 默认值
                 currentLevel = 1;
                 currentExp = 0f;
             }
+            
+            // 重新计算总属性
+            RecalculateAttributes();
+            
+            // 设置当前生命值为最大值
+            currentHealth = MaxHealth;
         }
 
         /// <summary>
-        /// 设置属性数据配置
+        /// 设置基础属性数据配置
         /// </summary>
-        public void SetAttributesData(EntityAttributesData data)
+        public void SetBaseAttributesData(EntityAttributesData data)
         {
-            attributesData = data;
-            Initialize();
+            baseAttributesData = data;
+            RecalculateAttributes();
+        }
+        
+        /// <summary>
+        /// 设置等级数据配置
+        /// </summary>
+        public void SetLevelData(EntityLevelData data)
+        {
+            levelData = data;
+        }
+        
+        /// <summary>
+        /// 重新计算总属性
+        /// 总属性 = 基础属性 + 装备属性 + 其他属性
+        /// </summary>
+        public void RecalculateAttributes()
+        {
+            // 从基础属性开始
+            if (baseAttributesData != null)
+            {
+                cachedTotalAttributes = baseAttributesData.Clone();
+            }
+            else
+            {
+                cachedTotalAttributes = ScriptableObject.CreateInstance<EntityAttributesData>();
+                Debug.LogWarning("EntityAttributes: baseAttributesData is null!");
+            }
+            
+            // 添加装备属性
+            if (owner != null && owner.EquipmentSystem != null)
+            {
+                EntityAttributesData equipmentAttr = owner.EquipmentSystem.GetTotalEquipmentAttributes();
+                if (equipmentAttr != null)
+                {
+                    cachedTotalAttributes = cachedTotalAttributes + equipmentAttr;
+                }
+            }
+            
+            // TODO: 添加其他属性加成（Buff、技能等）
+            
+            Debug.Log($"属性已重新计算 - 最大生命: {cachedTotalAttributes.maxHealth}, 攻击力: {cachedTotalAttributes.attackPower}");
+        }
+        
+        /// <summary>
+        /// 获取当前总属性
+        /// </summary>
+        private EntityAttributesData GetTotalAttributes()
+        {
+            if (cachedTotalAttributes == null)
+            {
+                RecalculateAttributes();
+            }
+            return cachedTotalAttributes;
         }
 
-        #region 基础属性访问器
+        #region 基础属性访问器（只读，从总属性中获取）
         
         public float MaxHealth 
         { 
-            get => attributesData != null ? attributesData.maxHealth : 100f; 
-            set 
-            {
-                if (attributesData != null)
-                {
-                    // 这里我们不直接修改ScriptableObject，而是创建一个新的实例
-                    EntityAttributesData newData = ScriptableObject.Instantiate(attributesData);
-                    newData.maxHealth = Mathf.Max(0f, value);
-                    attributesData = newData;
-                }
-            }
+            get => GetTotalAttributes()?.maxHealth ?? 100f;
         }
         
         public float AttackPower 
         { 
-            get => attributesData != null ? attributesData.attackPower : 10f; 
-            set 
-            {
-                if (attributesData != null)
-                {
-                    EntityAttributesData newData = ScriptableObject.Instantiate(attributesData);
-                    newData.attackPower = Mathf.Max(0f, value);
-                    attributesData = newData;
-                }
-            }
+            get => GetTotalAttributes()?.attackPower ?? 10f;
         }
         
         public float Defense 
         { 
-            get => attributesData != null ? attributesData.defense : 5f; 
-            set 
-            {
-                if (attributesData != null)
-                {
-                    EntityAttributesData newData = ScriptableObject.Instantiate(attributesData);
-                    newData.defense = Mathf.Max(0f, value);
-                    attributesData = newData;
-                }
-            }
+            get => GetTotalAttributes()?.defense ?? 5f;
         }
         
         public float AttackSpeed 
         { 
-            get => attributesData != null ? attributesData.attackSpeed : 1f; 
-            set 
-            {
-                if (attributesData != null)
-                {
-                    EntityAttributesData newData = ScriptableObject.Instantiate(attributesData);
-                    newData.attackSpeed = Mathf.Max(0f, value);
-                    attributesData = newData;
-                }
-            }
+            get => GetTotalAttributes()?.attackSpeed ?? 1f;
         }
         
         public float MoveSpeed 
         { 
-            get => attributesData != null ? attributesData.moveSpeed : 5f; 
-            set 
-            {
-                if (attributesData != null)
-                {
-                    EntityAttributesData newData = ScriptableObject.Instantiate(attributesData);
-                    newData.moveSpeed = Mathf.Max(0f, value);
-                    attributesData = newData;
-                }
-            }
+            get => GetTotalAttributes()?.moveSpeed ?? 5f;
         }
         
         public float AttackRange 
         { 
-            get => attributesData != null ? attributesData.attackRange : 2f; 
-            set 
-            {
-                if (attributesData != null)
-                {
-                    EntityAttributesData newData = ScriptableObject.Instantiate(attributesData);
-                    newData.attackRange = Mathf.Max(0f, value);
-                    attributesData = newData;
-                }
-            }
+            get => GetTotalAttributes()?.attackRange ?? 2f;
+        }
+        
+        public float CriticalRate
+        {
+            get => GetTotalAttributes()?.criticalRate ?? 0f;
+        }
+        
+        public float CriticalDamage
+        {
+            get => GetTotalAttributes()?.criticalDamage ?? 150f;
+        }
+        
+        public float DamageReduction
+        {
+            get => GetTotalAttributes()?.damageReduction ?? 0f;
         }
 
         #endregion
@@ -197,11 +224,27 @@ namespace SoulDefence.Entity
         }
 
         /// <summary>
-        /// 获取属性数据配置
+        /// 获取基础属性数据配置
         /// </summary>
-        public EntityAttributesData GetAttributesData()
+        public EntityAttributesData GetBaseAttributesData()
         {
-            return attributesData;
+            return baseAttributesData;
+        }
+        
+        /// <summary>
+        /// 获取计算后的总属性
+        /// </summary>
+        public EntityAttributesData GetTotalAttributesData()
+        {
+            return GetTotalAttributes();
+        }
+        
+        /// <summary>
+        /// 获取等级数据配置
+        /// </summary>
+        public EntityLevelData GetLevelData()
+        {
+            return levelData;
         }
 
         #endregion
