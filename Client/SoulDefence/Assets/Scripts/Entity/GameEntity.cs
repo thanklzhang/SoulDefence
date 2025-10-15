@@ -5,9 +5,9 @@ using System;
 using System.Linq;
 using SoulDefence.Skill;
 using SoulDefence.Equipment;
+using SoulDefence.Item;
 // 添加组件引用
 using SoulDefence.Entity;
-using SoulDefence.Equipment;
 
 namespace SoulDefence.Entity
 {
@@ -25,6 +25,7 @@ namespace SoulDefence.Entity
         [SerializeField] private EntitySkillSystem skillSystem = new EntitySkillSystem();
         [SerializeField] private EntityEffectSystem effectSystem = new EntityEffectSystem();
         [SerializeField] private EquipmentSystem equipmentSystem = new EquipmentSystem();
+        [SerializeField] private HealthPotionSystem healthPotionSystem = new HealthPotionSystem();
         
         [Header("AI系统")]
         [SerializeField] private EntityType entityType = EntityType.Player;
@@ -61,6 +62,7 @@ namespace SoulDefence.Entity
         {
             UpdateEntity();
             skillSystem.UpdateCooldowns();
+            healthPotionSystem.Update(Time.deltaTime);
         }
 
         /// <summary>
@@ -109,6 +111,9 @@ namespace SoulDefence.Entity
             
             // 初始化装备系统
             equipmentSystem.Initialize(this);
+            
+            // 初始化血瓶系统
+            healthPotionSystem.Initialize(this);
             
             // 根据实体类型设置队伍
             SetTeamByEntityType();
@@ -327,6 +332,11 @@ namespace SoulDefence.Entity
         /// 获取装备系统
         /// </summary>
         public EquipmentSystem EquipmentSystem => equipmentSystem;
+        
+        /// <summary>
+        /// 获取血瓶系统
+        /// </summary>
+        public HealthPotionSystem HealthPotionSystem => healthPotionSystem;
 
         /// <summary>
         /// 获取AI控制器
@@ -460,6 +470,14 @@ namespace SoulDefence.Entity
         /// 是否正在移动
         /// </summary>
         public bool IsMoving => movement.IsMoving;
+        
+        /// <summary>
+        /// 使用血瓶
+        /// </summary>
+        public bool UseHealthPotion()
+        {
+            return healthPotionSystem.UsePotion();
+        }
         
         #endregion
     }
