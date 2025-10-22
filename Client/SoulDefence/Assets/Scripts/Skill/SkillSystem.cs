@@ -37,12 +37,12 @@ namespace SoulDefence.Skill
         }
 
         /// <summary>
-        /// 使用技能
+        /// 使用技能（主入口）
         /// </summary>
         /// <param name="caster">技能施放者</param>
         /// <param name="skill">技能数据</param>
-        /// <param name="targetPosition">目标位置(远程技能使用)</param>
-        /// <param name="targetDirection">目标方向(近战技能使用)</param>
+        /// <param name="targetPosition">目标位置</param>
+        /// <param name="targetDirection">目标方向</param>
         /// <returns>是否成功释放</returns>
         public bool UseSkill(GameEntity caster, SkillData skill, Vector3 targetPosition, Vector3 targetDirection)
         {
@@ -57,72 +57,170 @@ namespace SoulDefence.Skill
 
             if (showDebugInfo)
             {
-                Debug.Log($"{caster.name}使用技能: {skill.skillName}, 类型: {skill.skillType}");
+                Debug.Log($"{caster.name}使用技能: {skill.skillName}, 效果类型: {skill.effectType}");
             }
             
-            // 根据技能类型调用不同的释放方法
-            switch (skill.skillType)
+            // 根据技能效果类型执行不同逻辑
+            bool success = true;
+            
+            // 移动型技能
+            if (skill.IsMovementSkill)
             {
-                case SkillType.Melee:
-                    return UseMeleeSkill(caster, skill, targetDirection);
-                case SkillType.Ranged:
-                    return UseRangedSkill(caster, skill, targetPosition);
-                default:
-                    if (showDebugInfo)
-                    {
-                        Debug.LogError($"未知的技能类型: {skill.skillType}");
-                    }
-                    return false;
+                success &= ExecuteMovementSkill(caster, skill, targetDirection);
             }
+            
+            // 伤害型技能
+            if (skill.IsDamageSkill)
+            {
+                success &= ExecuteDamageSkill(caster, skill, targetPosition, targetDirection);
+            }
+            
+            // 状态型技能（Buff）
+            if (skill.IsStatusSkill)
+            {
+                success &= ExecuteStatusSkill(caster, skill, targetPosition, targetDirection);
+            }
+            
+            return success;
         }
 
+        // ========== 技能效果执行方法 ==========
+        
         /// <summary>
-        /// 使用近战技能
+        /// 执行移动型技能（冲刺、传送）
         /// </summary>
-        private bool UseMeleeSkill(GameEntity caster, SkillData skill, Vector3 targetDirection)
+        private bool ExecuteMovementSkill(GameEntity caster, SkillData skill, Vector3 direction)
         {
-            // 获取实体的攻击距离作为技能攻击范围
-            float attackRange = GetEntityAttackRange(caster, skill);
+            if (caster == null) return false;
             
-            if (showDebugInfo)
+            Vector3 moveDirection = direction.normalized;
+            Vector3 targetPos;
+            
+            if (skill.isTeleport)
             {
-                Debug.Log($"使用近战技能: 范围={attackRange}, 角度={skill.arcAngle}, 方向={targetDirection}");
+                // 传送：瞬间移动到目标位置
+                targetPos = caster.transform.position + moveDirection * skill.movementDistance;
+                caster.transform.position = targetPos;
+                
+                if (showDebugInfo)
+                {
+                    Debug.Log($"{caster.name} 传送到: {targetPos}");
+                }
+            }
+            else
+            {
+                // 冲刺：在一段时间内移动
+                StartCoroutine(DashCoroutine(caster, moveDirection, skill.movementDistance, skill.movementDuration));
+                
+                if (showDebugInfo)
+                {
+                    Debug.Log($"{caster.name} 开始冲刺，距离: {skill.movementDistance}, 时间: {skill.movementDuration}");
+                }
             }
             
-            // 获取扇形区域内的目标
-            List<GameEntity> targets = GetTargetsInArc(caster, attackRange, skill.arcAngle, targetDirection, skill.targetCount);
+            return true;
+        }
+        
+        /// <summary>
+        /// 冲刺协程
+        /// </summary>
+        private IEnumerator DashCoroutine(GameEntity caster, Vector3 direction, float distance, float duration)
+        {
+            Vector3 startPos = caster.transform.position;
+            Vector3 endPos = startPos + direction * distance;
+            float elapsed = 0f;
+            
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = elapsed / duration;
+                caster.transform.position = Vector3.Lerp(startPos, endPos, t);
+                yield return null;
+            }
+            
+            caster.transform.position = endPos;
+        }
+        
+        /// <summary>
+        /// 执行伤害型技能
+        /// </summary>
+        private bool ExecuteDamageSkill(GameEntity caster, SkillData skill, Vector3 targetPosition, Vector3 targetDirection)
+        {
+            // 根据攻击方式选择执行方法
+            if (skill.attackType == SkillAttackType.Melee)
+            {
+                return ExecuteMeleeDamage(caster, skill, targetDirection);
+            }
+            else if (skill.attackType == SkillAttackType.Ranged)
+            {
+                return ExecuteRangedDamage(caster, skill, targetPosition);
+            }
+            
+            return false;
+        }
+        
+        /// <summary>
+        /// 执行状态型技能（Buff）
+        /// </summary>
+        private bool ExecuteStatusSkill(GameEntity caster, SkillData skill, Vector3 targetPosition, Vector3 targetDirection)
+        {
+            // 对自己应用Buff
+            if (skill.buffToSelf != null)
+            {
+                caster.AddBuff(skill.buffToSelf, caster);
+                
+                if (showDebugInfo)
+                {
+                    Debug.Log($"[状态技能] {caster.name} 给自己添加Buff: {skill.buffToSelf.buffName}");
+                }
+            }
+            
+            // 如果是纯状态型技能（不带伤害），也需要对范围内目标应用Buff
+            if (skill.effectType == SkillEffectType.Status && skill.buffToTarget != null)
+            {
+                // 根据范围类型获取目标
+                List<GameEntity> targets = GetTargetsInRange(caster, skill, targetDirection);
+                
+                foreach (var target in targets)
+                {
+                    ApplySkillBuffs(caster, target, skill);
+                }
+                
+                return targets.Count > 0;
+            }
+            
+            return true;
+        }
+        
+        // ========== 近战/远程伤害执行方法 ==========
+        
+        /// <summary>
+        /// 执行近战伤害
+        /// </summary>
+        private bool ExecuteMeleeDamage(GameEntity caster, SkillData skill, Vector3 targetDirection)
+        {
+            // 获取范围内的目标
+            List<GameEntity> targets = GetTargetsInRange(caster, skill, targetDirection);
             
             if (showDebugInfo)
             {
-                Debug.Log($"找到目标数量: {targets.Count}");
-                foreach (var target in targets)
-                {
-                    Debug.Log($"目标: {target.name}");
-                }
+                Debug.Log($"近战技能找到目标数量: {targets.Count}");
             }
             
             // 对每个目标应用伤害和Buff
             foreach (var target in targets)
             {
                 ApplyDamage(caster, target, skill.damage);
-                
-                // 应用技能的Buff效果
                 ApplySkillBuffs(caster, target, skill);
-            }
-            
-            // 对自己应用Buff
-            if (skill.buffToSelf != null)
-            {
-                caster.AddBuff(skill.buffToSelf, caster);
             }
             
             return targets.Count > 0;
         }
 
         /// <summary>
-        /// 使用远程技能
+        /// 执行远程伤害
         /// </summary>
-        private bool UseRangedSkill(GameEntity caster, SkillData skill, Vector3 targetPosition)
+        private bool ExecuteRangedDamage(GameEntity caster, SkillData skill, Vector3 targetPosition)
         {
             // 检查是否有投掷物预制体
             if (skill.projectilePrefab == null)
@@ -156,7 +254,7 @@ namespace SoulDefence.Skill
                 // 获取实体的攻击距离
                 float attackRange = GetEntityAttackRange(caster, skill);
                 
-                // 初始化投掷物，传递实体的攻击距离
+                // 初始化投掷物
                 projectile.Initialize(caster, skill, direction, attackRange);
             }
             else
@@ -166,7 +264,7 @@ namespace SoulDefence.Skill
                     Debug.LogError("投掷物预制体缺少Projectile组件");
                 }
                 
-                // 如果没有Projectile组件，添加一个简单的移动脚本
+                // 如果没有Projectile组件，添加一个
                 var simpleMove = projectileObj.AddComponent<Projectile>();
                 float range = GetEntityAttackRange(caster, skill);
                 simpleMove.Initialize(caster, skill, direction, range);
@@ -196,64 +294,145 @@ namespace SoulDefence.Skill
             return 1;
         }
 
+        // ========== 范围检测方法（支持多种范围类型） ==========
+        
+        /// <summary>
+        /// 根据技能配置获取范围内的目标（统一入口）
+        /// </summary>
+        private List<GameEntity> GetTargetsInRange(GameEntity caster, SkillData skill, Vector3 direction)
+        {
+            float range = GetEntityAttackRange(caster, skill);
+            
+            // 根据范围类型选择不同的检测方法
+            switch (skill.rangeType)
+            {
+                case SkillRangeType.Single:
+                    return GetSingleTarget(caster, range, direction, skill.targetCount);
+                    
+                case SkillRangeType.Arc:
+                    return GetTargetsInArc(caster, range, skill.rangeSize, direction, skill.targetCount);
+                    
+                case SkillRangeType.Circle:
+                    return GetTargetsInCircle(caster, range, skill.targetCount);
+                    
+                default:
+                    return new List<GameEntity>();
+            }
+        }
+        
+        /// <summary>
+        /// 获取单个目标（最近的敌人）
+        /// </summary>
+        private List<GameEntity> GetSingleTarget(GameEntity caster, float range, Vector3 direction, int maxTargets)
+        {
+            List<GameEntity> targets = new List<GameEntity>();
+            Collider[] colliders = Physics.OverlapSphere(caster.transform.position, range);
+            
+            // 找到最近的敌对目标
+            GameEntity closestTarget = null;
+            float closestDistance = float.MaxValue;
+            
+            foreach (var collider in colliders)
+            {
+                if (collider.gameObject == caster.gameObject) continue;
+                
+                GameEntity target = collider.GetComponent<GameEntity>();
+                if (target != null && target != caster && target.IsAlive && IsHostile(caster, target))
+                {
+                    float distance = Vector3.Distance(caster.transform.position, target.transform.position);
+                    if (distance < closestDistance)
+                    {
+                        closestDistance = distance;
+                        closestTarget = target;
+                    }
+                }
+            }
+            
+            if (closestTarget != null)
+            {
+                targets.Add(closestTarget);
+                
+                if (showDebugInfo)
+                {
+                    Debug.Log($"找到单体目标: {closestTarget.name}, 距离: {closestDistance}");
+                }
+            }
+            
+            return targets;
+        }
+        
         /// <summary>
         /// 获取扇形区域内的目标
         /// </summary>
         private List<GameEntity> GetTargetsInArc(GameEntity caster, float range, float arcAngle, Vector3 direction, int maxTargets)
         {
             List<GameEntity> targets = new List<GameEntity>();
-            
-            // 获取可能的目标
             Collider[] colliders = Physics.OverlapSphere(caster.transform.position, range);
             
             if (showDebugInfo)
             {
-                Debug.Log($"OverlapSphere找到碰撞体数量: {colliders.Length}");
+                Debug.Log($"扇形检测: 范围={range}, 角度={arcAngle}, 找到碰撞体={colliders.Length}");
             }
             
-            // 计算扇形角度的一半(弧度)
-            float halfAngleRad = arcAngle * 0.5f * Mathf.Deg2Rad;
-            
-            // 标准化方向
+            // 计算扇形角度的一半
+            float halfAngle = arcAngle * 0.5f;
             Vector3 forward = direction.normalized;
             
-            // 检查每个碰撞体
             foreach (var collider in colliders)
             {
-                // 忽略自身
-                if (collider.gameObject == caster.gameObject)
-                    continue;
+                if (collider.gameObject == caster.gameObject) continue;
                 
-                // 获取目标实体
                 GameEntity target = collider.GetComponent<GameEntity>();
-                
-                // 检查是否是有效目标
                 if (target != null && target != caster && target.IsAlive && IsHostile(caster, target))
                 {
-                    // 计算方向向量
                     Vector3 dirToTarget = (target.transform.position - caster.transform.position).normalized;
+                    float angle = Vector3.Angle(forward, dirToTarget);
                     
-                    // 计算夹角
-                    float angle = Vector3.Angle(forward, dirToTarget) * Mathf.Deg2Rad;
-                    
-                    // 检查是否在扇形内
-                    if (angle <= halfAngleRad)
+                    if (angle <= halfAngle)
                     {
-                        if (showDebugInfo)
-                        {
-                            Debug.Log($"目标 {target.name} 在扇形内，角度: {angle * Mathf.Rad2Deg}度");
-                        }
-                        
                         targets.Add(target);
                         
-                        // 如果达到最大目标数，停止搜索
-                        if (targets.Count >= maxTargets)
-                            break;
+                        if (showDebugInfo)
+                        {
+                            Debug.Log($"目标 {target.name} 在扇形内，角度: {angle}度");
+                        }
+                        
+                        if (targets.Count >= maxTargets) break;
                     }
-                    else if (showDebugInfo)
+                }
+            }
+            
+            return targets;
+        }
+        
+        /// <summary>
+        /// 获取圆形区域内的目标
+        /// </summary>
+        private List<GameEntity> GetTargetsInCircle(GameEntity caster, float range, int maxTargets)
+        {
+            List<GameEntity> targets = new List<GameEntity>();
+            Collider[] colliders = Physics.OverlapSphere(caster.transform.position, range);
+            
+            if (showDebugInfo)
+            {
+                Debug.Log($"圆形检测: 范围={range}, 找到碰撞体={colliders.Length}");
+            }
+            
+            foreach (var collider in colliders)
+            {
+                if (collider.gameObject == caster.gameObject) continue;
+                
+                GameEntity target = collider.GetComponent<GameEntity>();
+                if (target != null && target != caster && target.IsAlive && IsHostile(caster, target))
+                {
+                    targets.Add(target);
+                    
+                    if (showDebugInfo)
                     {
-                        Debug.Log($"目标 {target.name} 不在扇形内，角度: {angle * Mathf.Rad2Deg}度");
+                        Debug.Log($"目标 {target.name} 在圆形范围内");
                     }
+                    
+                    if (targets.Count >= maxTargets) break;
                 }
             }
             
