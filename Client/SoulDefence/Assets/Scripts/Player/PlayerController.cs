@@ -5,7 +5,7 @@ using UnityEngine;
 
 /// <summary>
 /// 玩家控制器
-/// 专门处理玩家输入并控制玩家实体
+/// 处理玩家输入并控制玩家实体
 /// </summary>
 public class PlayerController : MonoBehaviour
 {
@@ -14,9 +14,19 @@ public class PlayerController : MonoBehaviour
     
     [Header("控制设置")]
     [SerializeField] private bool enableInput = true;       // 是否启用输入
+    [SerializeField] private LayerMask groundLayer = -1;    // 地面层（用于鼠标射线检测）
+    
+    private Camera mainCamera;                              // 主摄像机
     
     void Start()
     {
+        // 获取主摄像机
+        mainCamera = Camera.main;
+        if (mainCamera == null)
+        {
+            Debug.LogError("[PlayerController] 未找到主摄像机！");
+        }
+        
         // 如果没有设置玩家实体，尝试从当前GameObject获取
         if (playerEntity == null)
         {
@@ -42,6 +52,21 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void HandlePlayerInput()
     {
+        // 处理移动输入
+        HandleMovementInput();
+        
+        // 处理鼠标朝向
+        HandleMouseRotation();
+        
+        // 处理战斗输入
+        HandleCombatInput();
+    }
+    
+    /// <summary>
+    /// 处理移动输入（WASD）
+    /// </summary>
+    private void HandleMovementInput()
+    {
         float horizontal = 0f;
         float vertical = 0f;
 
@@ -58,6 +83,57 @@ public class PlayerController : MonoBehaviour
         // 计算移动方向并传递给玩家实体
         Vector3 moveDirection = new Vector3(horizontal, 0, vertical).normalized;
         playerEntity.Movement.SetMoveDirection(moveDirection);
+    }
+    
+    /// <summary>
+    /// 处理鼠标朝向控制
+    /// </summary>
+    private void HandleMouseRotation()
+    {
+        if (mainCamera == null) return;
+        
+        // 从鼠标位置发射射线
+        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+        
+        // 检测射线是否击中地面
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, groundLayer))
+        {
+            // 计算从玩家到鼠标点击位置的方向
+            Vector3 directionToMouse = hit.point - playerEntity.transform.position;
+            directionToMouse.y = 0; // 保持在水平面
+            
+            // 如果方向有效，设置玩家朝向
+            if (directionToMouse.magnitude > 0.1f)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(directionToMouse);
+                playerEntity.transform.rotation = targetRotation;
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 处理战斗输入（攻击和技能）
+    /// </summary>
+    private void HandleCombatInput()
+    {
+        // 鼠标左键 - 普通攻击
+        if (Input.GetMouseButtonDown(0))
+        {
+            playerEntity.UseDefaultSkill();
+        }
+        
+        // F键 - 技能小招（技能1）
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            playerEntity.UseSkill(0);
+        }
+        
+        // V键 - 技能大招（技能2）
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            playerEntity.UseSkill(1);
+        }
     }
     
     /// <summary>
