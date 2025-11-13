@@ -50,6 +50,16 @@ namespace SoulDefence.Buff
 
         [Header("效果参数 - 护盾")]
         public float shieldAmount = 100f;       // 护盾值
+        
+        [Header("效果参数 - 吸血")]
+        [Tooltip("吸血比例（0-1，如0.2=20%吸血）")]
+        [Range(0f, 1f)]
+        public float lifeStealRatio = 0.2f;     // 吸血比例
+        
+        [Header("效果参数 - 多属性修改")]
+        public AttributeType secondaryAttributeType = AttributeType.Defense;  // 第二属性类型
+        public float secondaryAttributeValue = 0f;  // 第二属性修改值
+        public bool isSecondaryPercentage = false;  // 第二属性是否百分比
 
         [Header("视觉效果")]
         public GameObject visualEffect;         // 视觉特效预制体

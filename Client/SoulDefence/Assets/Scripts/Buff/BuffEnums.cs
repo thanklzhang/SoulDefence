@@ -37,6 +37,12 @@ namespace SoulDefence.Buff
         // 护盾类
         Shield = 50,                // 护盾
         
+        // 攻击特效类
+        LifeSteal = 60,             // 吸血（攻击时回血）
+        
+        // 复合效果类
+        MultiAttributeModifier = 70, // 多属性修改
+        
         // 特殊类
         Custom = 99,                // 自定义效果
     }

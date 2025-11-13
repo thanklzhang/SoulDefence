@@ -57,6 +57,16 @@ namespace SoulDefence.Skill
         [Tooltip("生命恢复：每次恢复的生命值")]
         public float healAmount = 20f;                  // 生命恢复量
         
+        [Tooltip("基于攻击力的生命恢复比例（0.02=恢复攻击力的2%）")]
+        public float healFromAttackPowerRatio = 0f;     // 基于攻击力的恢复比例
+        
+        [Tooltip("吸血比例：0.2=攻击造成的伤害的20%转化为生命值")]
+        [Range(0f, 1f)]
+        public float lifeStealRatio = 0.2f;             // 吸血比例
+        
+        [Tooltip("是否需要满足生命值阈值条件（用于复合触发条件）")]
+        public bool requireHealthThreshold = false;     // 是否需要满足生命值条件
+        
         [Tooltip("效果持续时间：秒数，0=瞬时效果")]
         public float effectDuration = 0f;               // 效果持续时间
 

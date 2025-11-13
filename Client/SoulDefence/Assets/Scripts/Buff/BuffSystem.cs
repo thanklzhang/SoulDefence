@@ -244,8 +244,10 @@ namespace SoulDefence.Buff
 
             foreach (var buff in activeBuffs)
             {
-                if (buff.Data.effectType == BuffEffectType.AttributeModifier)
+                if (buff.Data.effectType == BuffEffectType.AttributeModifier || 
+                    buff.Data.effectType == BuffEffectType.MultiAttributeModifier)
                 {
+                    // 主属性
                     AttributeType attrType = buff.GetAttributeType();
                     float value = buff.GetAttributeModifierValue();
 
@@ -257,10 +259,44 @@ namespace SoulDefence.Buff
                     {
                         modifiers[attrType] = value;
                     }
+                    
+                    // 如果是多属性修改，添加第二属性
+                    if (buff.Data.effectType == BuffEffectType.MultiAttributeModifier && 
+                        buff.Data.secondaryAttributeValue != 0f)
+                    {
+                        AttributeType secondaryAttrType = buff.Data.secondaryAttributeType;
+                        float secondaryValue = buff.Data.secondaryAttributeValue * buff.CurrentStacks;
+                        
+                        if (modifiers.ContainsKey(secondaryAttrType))
+                        {
+                            modifiers[secondaryAttrType] += secondaryValue;
+                        }
+                        else
+                        {
+                            modifiers[secondaryAttrType] = secondaryValue;
+                        }
+                    }
                 }
             }
 
             return modifiers;
+        }
+        
+        /// <summary>
+        /// 获取总吸血比例
+        /// </summary>
+        public float GetTotalLifeStealRatio()
+        {
+            float totalRatio = 0f;
+            foreach (var buff in activeBuffs)
+            {
+                if (buff.Data.effectType == BuffEffectType.LifeSteal || 
+                    buff.Data.effectType == BuffEffectType.MultiAttributeModifier)
+                {
+                    totalRatio += buff.Data.lifeStealRatio;
+                }
+            }
+            return totalRatio;
         }
 
         /// <summary>

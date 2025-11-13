@@ -33,6 +33,7 @@ namespace SoulDefence.Skill
         
         // 恢复类
         HealthRegen = 30,           // 生命恢复
+        LifeSteal = 31,             // 吸血（攻击回血）
         
         // 特殊效果类
         Stun = 40,                  // 眩晕

@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0, type: 3}
+  m_Name: PlayerUltimateBuff
+  m_EditorClassIdentifier: 
+  buffId: 2001
+  buffName: "\u6218\u6597\u72C2\u70ED"
+  buffType: 0
+  description: "\u589E\u52A0\u653B\u51FB\u529B\u548C\u9632\u5FA1\u529B\uFF0C\u666E\u901A\u653B\u51FB\u83B7\u5F97\u5438\u8840\u6548\u679C"
+  duration: 10
+  isPermanent: 0
+  stackType: 0
+  maxStacks: 1
+  effectType: 70
+  tickRate: 0
+  attributeType: 0
+  attributeValue: 20
+  isPercentage: 0
+  damagePerTick: 0
+  tickInterval: 1
+  areaRadius: 0
+  areaEffectValue: 0
+  stackThreshold: 3
+  stackEffectValue: 50
+  slowPercent: 0.5
+  shieldAmount: 100
+  lifeStealRatio: 0.2
+  secondaryAttributeType: 1
+  secondaryAttributeValue: 15
+  isSecondaryPercentage: 0
+  visualEffect: {fileID: 0}
+  buffColor: {r: 1, g: 0.5, b: 0, a: 1}
+  canBeDispelled: 1
+  priority: 10
+

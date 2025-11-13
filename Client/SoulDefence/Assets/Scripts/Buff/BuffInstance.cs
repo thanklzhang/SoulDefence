@@ -82,6 +82,7 @@ namespace SoulDefence.Buff
             switch (buffData.effectType)
             {
                 case BuffEffectType.AttributeModifier:
+                case BuffEffectType.MultiAttributeModifier:
                     ApplyAttributeModifier();
                     break;
 
@@ -93,6 +94,10 @@ namespace SoulDefence.Buff
                 case BuffEffectType.Stun:
                     // TODO: 控制系统
                     Debug.Log($"[Buff] {buffData.buffName} 眩晕 {target.name}");
+                    break;
+                    
+                case BuffEffectType.LifeSteal:
+                    Debug.Log($"[Buff] {buffData.buffName} 应用吸血效果 {buffData.lifeStealRatio * 100}% 到 {target.name}");
                     break;
             }
 
@@ -110,6 +115,14 @@ namespace SoulDefence.Buff
             
             Debug.Log($"[Buff] {buffData.buffName} 属性修改: 类型={buffData.attributeType}, " +
                      $"值={appliedAttributeValue}, 百分比={buffData.isPercentage}");
+            
+            // 如果有第二属性，也打印
+            if (buffData.effectType == BuffEffectType.MultiAttributeModifier && 
+                buffData.secondaryAttributeValue != 0f)
+            {
+                Debug.Log($"[Buff] {buffData.buffName} 第二属性修改: 类型={buffData.secondaryAttributeType}, " +
+                         $"值={buffData.secondaryAttributeValue * currentStacks}, 百分比={buffData.isSecondaryPercentage}");
+            }
             
             // 触发属性重算
             if (target.Attributes != null)

@@ -62,6 +62,18 @@ namespace SoulDefence.Skill
         public float rangeSize = 3f;               // 范围大小（半径或角度）
         public int targetCount = 1;                // 目标数量
         
+        [Header("=== 特殊伤害计算 ===")]
+        [Tooltip("攻击力系数（伤害 = 攻击力 * 系数）")]
+        public float attackPowerRatio = 0f;        // 攻击力系数
+        [Tooltip("目标生命值百分比伤害（0-1）")]
+        public float targetHealthRatio = 0f;       // 目标生命值百分比
+        [Tooltip("自身生命值百分比伤害（0-1）")]
+        public float selfHealthRatio = 0f;         // 自身生命值百分比
+        
+        [Header("=== 吸血效果 ===")]
+        [Tooltip("吸血比例（0-1，如0.2=20%吸血）")]
+        public float lifeStealRatio = 0f;          // 吸血比例
+        
         [Header("=== 状态参数（Buff/Debuff） ===")]
         [Tooltip("对目标添加的Buff")]
         public BuffData buffToTarget;              // 对目标的Buff

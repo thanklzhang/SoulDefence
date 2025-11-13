@@ -208,10 +208,35 @@ namespace SoulDefence.Skill
             }
             
             // 对每个目标应用伤害和Buff
+            float totalDamageDealt = 0f;
             foreach (var target in targets)
             {
-                ApplyDamage(caster, target, skill.damage);
+                // 计算技能伤害（包括特殊计算）
+                float skillDamage = CalculateSkillDamage(caster, target, skill);
+                float actualDamage = ApplyDamage(caster, target, skillDamage);
+                totalDamageDealt += actualDamage;
+                
                 ApplySkillBuffs(caster, target, skill);
+            }
+            
+            // 应用吸血效果（技能自带 + Buff提供）
+            float totalLifeStealRatio = skill.lifeStealRatio;
+            
+            // 添加Buff提供的吸血比例
+            if (caster.BuffSystem != null)
+            {
+                totalLifeStealRatio += caster.BuffSystem.GetTotalLifeStealRatio();
+            }
+            
+            if (totalLifeStealRatio > 0f && totalDamageDealt > 0f)
+            {
+                float healAmount = totalDamageDealt * totalLifeStealRatio;
+                caster.Attributes.Heal(healAmount);
+                
+                if (showDebugInfo)
+                {
+                    Debug.Log($"[吸血] {caster.name} 造成 {totalDamageDealt} 伤害，吸血 {healAmount} 生命值 (吸血比例: {totalLifeStealRatio * 100}%)");
+                }
             }
             
             return targets.Count > 0;
@@ -442,7 +467,8 @@ namespace SoulDefence.Skill
         /// <summary>
         /// 应用伤害
         /// </summary>
-        public void ApplyDamage(GameEntity attacker, GameEntity target, float baseDamage)
+        /// <returns>实际造成的伤害值</returns>
+        public float ApplyDamage(GameEntity attacker, GameEntity target, float baseDamage)
         {
             if (attacker == null || target == null || !target.IsAlive)
             {
@@ -450,7 +476,7 @@ namespace SoulDefence.Skill
                 {
                     // Debug.LogError($"ApplyDamage失败: attacker={attacker}, target={target}, target.IsAlive={target?.IsAlive}");
                 }
-                return;
+                return 0f;
             }
                 
             // 计算实际伤害
@@ -461,8 +487,60 @@ namespace SoulDefence.Skill
                 // Debug.Log($"{attacker.name}对{target.name}造成{actualDamage}点伤害");
             }
             
-            // 应用伤害
-            target.TakeDamage(actualDamage);
+            // 应用伤害并返回实际伤害值
+            float damageDealt = target.TakeDamage(actualDamage);
+            return damageDealt;
+        }
+        
+        /// <summary>
+        /// 计算技能伤害（包括特殊计算）
+        /// </summary>
+        private float CalculateSkillDamage(GameEntity caster, GameEntity target, SkillData skill)
+        {
+            float totalDamage = skill.damage;
+            
+            // 攻击力系数伤害
+            if (skill.attackPowerRatio > 0f)
+            {
+                float attackPowerDamage = caster.Attributes.AttackPower * skill.attackPowerRatio;
+                totalDamage += attackPowerDamage;
+                
+                if (showDebugInfo)
+                {
+                    Debug.Log($"[伤害计算] 攻击力伤害: {attackPowerDamage} = {caster.Attributes.AttackPower} * {skill.attackPowerRatio}");
+                }
+            }
+            
+            // 目标生命值百分比伤害
+            if (skill.targetHealthRatio > 0f)
+            {
+                float healthDamage = target.Attributes.MaxHealth * skill.targetHealthRatio;
+                totalDamage += healthDamage;
+                
+                if (showDebugInfo)
+                {
+                    Debug.Log($"[伤害计算] 目标生命值伤害: {healthDamage} = {target.Attributes.MaxHealth} * {skill.targetHealthRatio}");
+                }
+            }
+            
+            // 自身生命值百分比伤害
+            if (skill.selfHealthRatio > 0f)
+            {
+                float selfHealthDamage = caster.Attributes.MaxHealth * skill.selfHealthRatio;
+                totalDamage += selfHealthDamage;
+                
+                if (showDebugInfo)
+                {
+                    Debug.Log($"[伤害计算] 自身生命值伤害: {selfHealthDamage} = {caster.Attributes.MaxHealth} * {skill.selfHealthRatio}");
+                }
+            }
+            
+            if (showDebugInfo)
+            {
+                Debug.Log($"[伤害计算] 总伤害: {totalDamage}");
+            }
+            
+            return totalDamage;
         }
         
         /// <summary>

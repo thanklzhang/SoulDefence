@@ -134,6 +134,12 @@ public class PlayerController : MonoBehaviour
         {
             playerEntity.UseSkill(1);
         }
+        
+        // Space键 - 滑行技能（技能3）
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            playerEntity.UseSkill(2);
+        }
     }
     
     /// <summary>

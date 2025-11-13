@@ -96,8 +96,21 @@ namespace SoulDefence.Skill
                 attackCount++;
                 if (attackCount >= passiveData.attackCountThreshold)
                 {
-                    TriggerEffect();
-                    attackCount = 0;
+                    // 如果需要满足生命值阈值条件，则检查生命值
+                    if (passiveData.requireHealthThreshold)
+                    {
+                        float healthPercent = owner.Attributes.HealthPercentage * 100f;
+                        if (healthPercent <= passiveData.healthThreshold)
+                        {
+                            TriggerEffect();
+                            attackCount = 0;
+                        }
+                    }
+                    else
+                    {
+                        TriggerEffect();
+                        attackCount = 0;
+                    }
                 }
             }
         }
@@ -166,8 +179,17 @@ namespace SoulDefence.Skill
                     break;
 
                 case PassiveEffectType.HealthRegen:
-                    owner.Heal(passiveData.healAmount);
-                    Debug.Log($"[被动技能] {passiveData.passiveName} 触发：恢复生命 {passiveData.healAmount}");
+                    float totalHeal = passiveData.healAmount;
+                    
+                    // 如果有基于攻击力的恢复比例，计算并添加
+                    if (passiveData.healFromAttackPowerRatio > 0f)
+                    {
+                        float attackPowerHeal = owner.Attributes.AttackPower * passiveData.healFromAttackPowerRatio;
+                        totalHeal += attackPowerHeal;
+                    }
+                    
+                    owner.Heal(totalHeal);
+                    Debug.Log($"[被动技能] {passiveData.passiveName} 触发：恢复生命 {totalHeal}");
                     break;
 
                 case PassiveEffectType.DamageReduction:
@@ -183,25 +205,63 @@ namespace SoulDefence.Skill
 
         /// <summary>
         /// 获取伤害修正（攻击时调用）
+        /// 对于攻击次数触发的被动技能，检查是否已经累积到阈值
         /// </summary>
         public float GetDamageModifier(float baseDamage)
         {
             float modifier = 0f;
-
-            switch (passiveData.effectType)
+            
+            // 对于攻击次数触发的被动技能，检查是否触发条件满足
+            bool shouldApplyDamageBonus = false;
+            
+            if (passiveData.triggerType == PassiveTriggerType.OnAttackCount)
             {
-                case PassiveEffectType.DamageMultiplier:
-                    modifier = baseDamage * (passiveData.damageMultiplier - 1f);
-                    break;
+                // 检查是否即将触发（攻击计数达到阈值）
+                if (attackCount >= passiveData.attackCountThreshold)
+                {
+                    // 如果需要满足生命值条件，检查生命值
+                    if (passiveData.requireHealthThreshold)
+                    {
+                        float healthPercent = owner.Attributes.HealthPercentage * 100f;
+                        shouldApplyDamageBonus = healthPercent <= passiveData.healthThreshold;
+                    }
+                    else
+                    {
+                        shouldApplyDamageBonus = true;
+                    }
+                }
+            }
+            else if (passiveData.triggerType == PassiveTriggerType.OnAttack)
+            {
+                shouldApplyDamageBonus = true;
+            }
 
-                case PassiveEffectType.ExtraDamage:
-                    modifier = passiveData.extraDamage;
-                    break;
+            // 如果应该应用伤害加成，计算伤害修正
+            if (shouldApplyDamageBonus)
+            {
+                switch (passiveData.effectType)
+                {
+                    case PassiveEffectType.DamageMultiplier:
+                        modifier = baseDamage * (passiveData.damageMultiplier - 1f);
+                        break;
 
-                case PassiveEffectType.CriticalHit:
-                    // 暴击判定（可以加入随机或条件）
-                    modifier = baseDamage * (passiveData.criticalMultiplier - 1f);
-                    break;
+                    case PassiveEffectType.ExtraDamage:
+                        modifier = passiveData.extraDamage;
+                        break;
+
+                    case PassiveEffectType.CriticalHit:
+                        // 暴击判定（可以加入随机或条件）
+                        modifier = baseDamage * (passiveData.criticalMultiplier - 1f);
+                        break;
+                        
+                    case PassiveEffectType.HealthRegen:
+                        // 生命恢复型被动也可以有伤害倍率
+                        if (passiveData.damageMultiplier > 1f)
+                        {
+                            modifier = baseDamage * (passiveData.damageMultiplier - 1f);
+                        }
+                        break;
+                }
             }
 
             return modifier;
